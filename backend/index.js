@@ -21,6 +21,11 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/media', express.static('public'));
 
+// Mount API Services Router for external CRM integrations & Developer Portal
+const apiServiceRoutes = require('./api_service_routes');
+const templateService = require('./template_service');
+app.use('/api/v1', apiServiceRoutes);
+
 const PORT = process.env.PORT || 3000;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
@@ -169,6 +174,7 @@ const contactSchema = new mongoose.Schema({
         createdAt: { type: Date, default: Date.now }
     }],
     loyaltyPoints: { type: Number, default: 0 },
+    notes: { type: String, default: '' },
     tickets: [{
         ticketId: String,
         subject: String,
@@ -1975,6 +1981,106 @@ app.delete('/crm/:phone', async (req, res) => {
         const result = await Contact.deleteOne({ phone: req.params.phone });
         res.json({ success: result.deletedCount > 0 });
     } catch (err) { res.status(500).json({ error: 'Failed to delete' }); }
+});
+
+// Send live agent reply to WhatsApp
+app.post('/crm/:phone/send-message', async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text) return res.status(400).json({ error: 'Message text required' });
+        const contact = await Contact.findOne({ phone: req.params.phone });
+        if (!contact) return res.status(404).json({ error: 'Contact not found' });
+
+        await sendMessage(contact.phone, text);
+
+        contact.messages.push({
+            text,
+            fromCustomer: false,
+            time: new Date()
+        });
+        contact.lastSeen = new Date();
+        await contact.save();
+
+        res.json({ success: true, message: 'Message sent to WhatsApp', contact });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Lead Status from CRM
+app.post('/crm/:phone/update-lead-status', async (req, res) => {
+    try {
+        const { lead_status } = req.body;
+        const contact = await Contact.findOne({ phone: req.params.phone });
+        if (!contact) return res.status(404).json({ error: 'Contact not found' });
+
+        contact.lead_status = lead_status;
+        await contact.save();
+        res.json({ success: true, lead_status: contact.lead_status });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Create Repair Job Card from CRM
+app.post('/crm/:phone/create-repair', async (req, res) => {
+    try {
+        const { serviceName, deviceBrand, deviceModel, issueDescription, estimatedCost, turnaroundTime } = req.body;
+        const contact = await Contact.findOne({ phone: req.params.phone });
+        if (!contact) return res.status(404).json({ error: 'Contact not found' });
+
+        const repairId = `REP-${Math.floor(1000 + Math.random() * 9000)}`;
+        const newRepair = {
+            repairId,
+            serviceName: serviceName || 'General Repair',
+            deviceBrand: deviceBrand || 'Smartphone',
+            deviceModel: deviceModel || '',
+            issueDescription: issueDescription || 'Walk-in / CRM Service',
+            estimatedCost: Number(estimatedCost) || 0,
+            turnaroundTime: turnaroundTime || 'Same Day',
+            status: 'Received',
+            trackingLink: `${SHOP_TRACK_URL}?id=${repairId}`,
+            createdAt: new Date()
+        };
+
+        contact.repairs.push(newRepair);
+        contact.lead_status = 'In Repair';
+        await contact.save();
+
+        await templateService.sendRepairBookingConfirmed(
+            contact.phone,
+            contact.name || 'Customer',
+            repairId,
+            `${newRepair.deviceBrand} ${newRepair.deviceModel}`,
+            newRepair.serviceName,
+            newRepair.turnaroundTime
+        ).catch(e => console.error(e));
+
+        res.json({ success: true, repair: newRepair });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update Customer Profile details (Name, Device, Loyalty Points, Notes)
+app.post('/crm/:phone/update-profile', async (req, res) => {
+    try {
+        const { name, device_brand, device_model, loyaltyPoints, notes, consent } = req.body;
+        const contact = await Contact.findOne({ phone: req.params.phone });
+        if (!contact) return res.status(404).json({ error: 'Contact not found' });
+
+        if (name !== undefined) contact.name = name;
+        if (device_brand !== undefined) contact.device_brand = device_brand;
+        if (device_model !== undefined) contact.device_model = device_model;
+        if (loyaltyPoints !== undefined) contact.loyaltyPoints = Number(loyaltyPoints);
+        if (notes !== undefined) contact.notes = notes;
+        if (consent !== undefined) contact.consent = Boolean(consent);
+
+        await contact.save();
+        res.json({ success: true, contact });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Update Repair Status from CRM Dashboard

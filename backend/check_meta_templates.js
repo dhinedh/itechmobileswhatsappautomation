@@ -4,29 +4,20 @@ const axios = require('axios');
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
+const WABA_ID = process.env.WABA_ID || '1758570912097342';
+
 async function checkTemplates() {
     try {
-        // 1. Get WABA ID from Phone Number ID
-        console.log(`Checking Phone Number Details for ID: ${PHONE_NUMBER_ID}...`);
-        const phoneRes = await axios.get(
-            `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}?fields=id,display_phone_number,name_status,whatsapp_business_account`,
+        console.log(`Fetching Message Templates for WABA ID: ${WABA_ID}...`);
+        const templateRes = await axios.get(
+            `https://graph.facebook.com/v20.0/${WABA_ID}/message_templates?limit=100`,
             { headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` } }
         );
-        console.log('Phone Number Details:', phoneRes.data);
-
-        const wabaId = phoneRes.data.whatsapp_business_account?.id;
-        if (wabaId) {
-            console.log(`\nFetching Message Templates for WABA ID: ${wabaId}...`);
-            const templateRes = await axios.get(
-                `https://graph.facebook.com/v20.0/${wabaId}/message_templates`,
-                { headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` } }
-            );
-            console.log('\nApproved Message Templates count:', templateRes.data.data?.length || 0);
-            (templateRes.data.data || []).forEach(t => {
-                console.log(`- Template Name: "${t.name}" | Status: ${t.status} | Category: ${t.category} | Language: ${t.language}`);
-                console.log('  Components:', JSON.stringify(t.components));
-            });
-        }
+        const list = templateRes.data.data || [];
+        console.log(`\nFound ${list.length} message templates on Meta:\n`);
+        list.forEach((t, i) => {
+            console.log(`${i + 1}. [${t.status}] ${t.name} (${t.category}, ${t.language})`);
+        });
     } catch (err) {
         console.error('Error fetching templates:', err?.response?.data || err.message);
     }

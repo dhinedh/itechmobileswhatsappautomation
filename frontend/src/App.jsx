@@ -3,6 +3,10 @@ import Header from './components/Header';
 import StatsRow from './components/StatsRow';
 import ContactList from './components/ContactList';
 import ContactDetail from './components/ContactDetail';
+import TemplatesHub from './components/TemplatesHub';
+import TemplateCreator from './components/TemplateCreator';
+import ApiDocsHub from './components/ApiDocsHub';
+import CustomerSidebar from './components/CustomerSidebar';
 import { isToday } from './utils/formatters';
 
 function App() {
@@ -26,6 +30,8 @@ function App() {
   const [broadcastMsg, setBroadcastMsg] = useState('');
   const [broadcastSegment, setBroadcastSegment] = useState('opt_in');
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
+  const [activeTab, setActiveTab] = useState('crm'); // 'crm' | 'templates' | 'creator' | 'apidocs'
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Fetch all contacts
   const fetchContacts = async () => {
@@ -189,6 +195,69 @@ function App() {
     }
   };
 
+  // Send Direct Message to Customer WhatsApp
+  const handleSendMessage = async (phone, text) => {
+    try {
+      const res = await fetch(`${API_URL}/crm/${phone}/send-message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      if (res.ok) {
+        fetchContactDetail(phone);
+        return true;
+      } else {
+        const data = await res.json();
+        alert(`Failed to send message: ${data.error || 'Unknown error'}`);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("Error sending message to WhatsApp");
+      return false;
+    }
+  };
+
+  // Update Lead Status
+  const handleUpdateLeadStatus = async (phone, newStatus) => {
+    try {
+      const res = await fetch(`${API_URL}/crm/${phone}/update-lead-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_status: newStatus })
+      });
+      if (res.ok) {
+        fetchContactDetail(phone);
+        fetchContacts();
+      }
+    } catch (error) {
+      console.error("Error updating lead status:", error);
+    }
+  };
+
+  // Create Repair from CRM
+  const handleCreateRepair = async (phone, repairData) => {
+    try {
+      const res = await fetch(`${API_URL}/crm/${phone}/create-repair`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(repairData)
+      });
+      if (res.ok) {
+        alert("✅ Repair job card created and WhatsApp confirmation sent to customer!");
+        fetchContactDetail(phone);
+        fetchContacts();
+        fetchAnalytics();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error creating repair:", error);
+      alert("Failed to create repair");
+      return false;
+    }
+  };
+
   // Send Broadcast Message
   const handleSendBroadcast = async (e) => {
     e.preventDefault();
@@ -284,6 +353,8 @@ function App() {
   return (
     <>
       <Header 
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
         contactCount={contacts.length} 
         onRefresh={() => { fetchContacts(); fetchAnalytics(); }} 
         onOpenBroadcast={() => setShowBroadcast(true)}
@@ -291,29 +362,73 @@ function App() {
         dpSyncing={dpSyncing}
       />
       
-      <StatsRow stats={stats} />
-      
-      <main className="flex-1 overflow-hidden px-5 pb-5 flex flex-col md:flex-row gap-5">
-        <ContactList 
-          contacts={filteredContacts}
-          currentPhone={currentPhone}
-          onSelectContact={fetchContactDetail}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+      {activeTab === 'crm' && (
+        <>
+          <StatsRow stats={stats} />
+          
+          <main className="flex-1 overflow-hidden px-5 pb-5 flex flex-col md:flex-row gap-5">
+            <ContactList 
+              contacts={filteredContacts}
+              currentPhone={currentPhone}
+              onSelectContact={fetchContactDetail}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            
+            <ContactDetail 
+              contact={activeContactDetail} 
+              loading={detailLoading}
+              apiUrl={API_URL}
+              onDelete={deleteContact}
+              onToggleBot={handleToggleBot}
+              onResolveTicket={handleResolveTicket}
+              onUpdateOrderStatus={handleUpdateOrderStatus}
+              onUpdateRepairStatus={handleUpdateRepairStatus}
+              onSendRepairQuote={handleSendRepairQuote}
+              onSendWarranty={handleSendWarranty}
+              onSendMessage={handleSendMessage}
+              onUpdateLeadStatus={handleUpdateLeadStatus}
+              onCreateRepair={handleCreateRepair}
+              onRefreshContact={() => fetchContactDetail(currentPhone)}
+              isSidebarOpen={sidebarOpen}
+              onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            />
+
+            {activeContactDetail && (
+              <CustomerSidebar
+                contact={activeContactDetail}
+                apiUrl={API_URL}
+                isOpen={sidebarOpen}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
+                onUpdateContact={() => fetchContactDetail(currentPhone)}
+                onUpdateLeadStatus={handleUpdateLeadStatus}
+              />
+            )}
+          </main>
+        </>
+      )}
+
+      {activeTab === 'templates' && (
+        <TemplatesHub 
+          apiUrl={API_URL}
+          onNavigateToCreate={() => setActiveTab('creator')}
+          onNavigateToApiDocs={() => setActiveTab('apidocs')}
         />
-        
-        <ContactDetail 
-          contact={activeContactDetail} 
-          loading={detailLoading}
-          onDelete={deleteContact}
-          onToggleBot={handleToggleBot}
-          onResolveTicket={handleResolveTicket}
-          onUpdateOrderStatus={handleUpdateOrderStatus}
-          onUpdateRepairStatus={handleUpdateRepairStatus}
-          onSendRepairQuote={handleSendRepairQuote}
-          onSendWarranty={handleSendWarranty}
+      )}
+
+      {activeTab === 'creator' && (
+        <TemplateCreator 
+          apiUrl={API_URL}
+          onTemplateCreated={() => setActiveTab('templates')}
+          onBackToHub={() => setActiveTab('templates')}
         />
-      </main>
+      )}
+
+      {activeTab === 'apidocs' && (
+        <ApiDocsHub 
+          apiUrl={API_URL}
+        />
+      )}
 
       {/* Broadcast Campaign Modal */}
       {showBroadcast && (
