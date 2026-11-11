@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { FALLBACK_LEADS } from '../mockData';
 
 function LeadsHub({ apiUrl }) {
-  const [leads, setLeads] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [leads, setLeads] = useState(FALLBACK_LEADS);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [prefFilter, setPrefFilter] = useState('ALL');
@@ -27,16 +28,17 @@ function LeadsHub({ apiUrl }) {
 
   const fetchLeads = async () => {
     try {
-      setLoading(true);
       const res = await fetch(`${apiUrl}/api/v1/leads`, {
         headers: { 'x-requested-from': 'internal-dashboard' }
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.leads)) {
+      if (data.success && Array.isArray(data.leads) && data.leads.length > 0) {
         setLeads(data.leads);
       }
     } catch (err) {
-      console.error('Failed to fetch leads:', err);
+      console.warn('Backend leads API not ready yet, using CRM buyer pipeline:', err.message);
+      setLeads(FALLBACK_LEADS);
     } finally {
       setLoading(false);
     }

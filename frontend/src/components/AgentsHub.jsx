@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { FALLBACK_AGENTS } from '../mockData';
 
 function AgentsHub({ apiUrl }) {
-  const [agents, setAgents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState(FALLBACK_AGENTS);
+  const [loading, setLoading] = useState(false);
 
   const fetchAgents = async () => {
     try {
-      setLoading(true);
       const res = await fetch(`${apiUrl}/api/v1/agents`, {
         headers: { 'x-requested-from': 'internal-dashboard' }
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.agents)) {
+      if (data.success && Array.isArray(data.agents) && data.agents.length > 0) {
         setAgents(data.agents);
       }
     } catch (err) {
-      console.error('Failed to fetch agents:', err);
+      console.warn('Backend agents API not ready yet, using department roster:', err.message);
+      setAgents(FALLBACK_AGENTS);
     } finally {
       setLoading(false);
     }

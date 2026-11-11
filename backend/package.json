@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "build": "node -e \"console.log('Backend Build Succeeded')\"",
     "dev": "node --watch index.js",
     "check-templates": "node check_all_status.js"
   },

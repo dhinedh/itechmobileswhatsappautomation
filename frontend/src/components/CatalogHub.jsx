@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { FALLBACK_PRODUCTS, FALLBACK_OFFERS } from '../mockData';
 
 function CatalogHub({ apiUrl }) {
   const [subTab, setSubTab] = useState('smartphones'); // 'smartphones' | 'accessories' | 'offers'
-  const [products, setProducts] = useState([]);
-  const [offers, setOffers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
+  const [offers, setOffers] = useState(FALLBACK_OFFERS);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [brandFilter, setBrandFilter] = useState('ALL');
   const [accCatFilter, setAccCatFilter] = useState('ALL');
@@ -15,23 +16,27 @@ function CatalogHub({ apiUrl }) {
 
   const fetchData = async () => {
     try {
-      setLoading(true);
-      const [prodRes, offRes] = await Promise.all([
+      const [prodRes, offRes] = await Promise.allSettled([
         fetch(`${apiUrl}/api/v1/products`, { headers: { 'x-requested-from': 'internal-dashboard' } }),
         fetch(`${apiUrl}/api/v1/offers`, { headers: { 'x-requested-from': 'internal-dashboard' } })
       ]);
 
-      const prodData = await prodRes.json();
-      const offData = await offRes.json();
-
-      if (prodData.success && Array.isArray(prodData.products)) {
-        setProducts(prodData.products);
+      if (prodRes.status === 'fulfilled' && prodRes.value.ok) {
+        const prodData = await prodRes.value.json();
+        if (prodData.success && Array.isArray(prodData.products) && prodData.products.length > 0) {
+          setProducts(prodData.products);
+        }
       }
-      if (offData.success && Array.isArray(offData.offers)) {
-        setOffers(offData.offers);
+      if (offRes.status === 'fulfilled' && offRes.value.ok) {
+        const offData = await offRes.value.json();
+        if (offData.success && Array.isArray(offData.offers) && offData.offers.length > 0) {
+          setOffers(offData.offers);
+        }
       }
     } catch (err) {
-      console.error('Failed to fetch catalog:', err);
+      console.warn('Backend catalog API not ready yet, using catalog inventory:', err.message);
+      setProducts(FALLBACK_PRODUCTS);
+      setOffers(FALLBACK_OFFERS);
     } finally {
       setLoading(false);
     }

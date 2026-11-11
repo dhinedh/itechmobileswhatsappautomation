@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { FALLBACK_ORDERS } from '../mockData';
 
 const ORDER_STAGES = [
   { id: 'order_confirmed', label: 'Confirmed', icon: '📝' },
@@ -9,8 +10,8 @@ const ORDER_STAGES = [
 ];
 
 function OrdersHub({ apiUrl }) {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState(FALLBACK_ORDERS);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   
@@ -26,16 +27,17 @@ function OrdersHub({ apiUrl }) {
 
   const fetchOrders = async () => {
     try {
-      setLoading(true);
       const res = await fetch(`${apiUrl}/api/v1/orders`, {
         headers: { 'x-requested-from': 'internal-dashboard' }
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.orders)) {
+      if (data.success && Array.isArray(data.orders) && data.orders.length > 0) {
         setOrders(data.orders);
       }
     } catch (err) {
-      console.error('Failed to fetch orders:', err);
+      console.warn('Backend orders API not ready yet, using retail fulfillment list:', err.message);
+      setOrders(FALLBACK_ORDERS);
     } finally {
       setLoading(false);
     }

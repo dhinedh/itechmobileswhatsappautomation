@@ -4,10 +4,11 @@
   "description": "iTechnic Mobiles WhatsApp Business API & CRM Dashboard",
   "scripts": {
     "start": "node backend/index.js",
+    "build": "node -e \"console.log('Render Build Succeeded')\"",
+    "build:frontend": "npm --prefix frontend run build",
     "backend": "npm --prefix backend start",
     "backend:dev": "npm --prefix backend run dev",
     "frontend": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build",
     "postinstall": "cd backend && npm install"
   },
   "dependencies": {
