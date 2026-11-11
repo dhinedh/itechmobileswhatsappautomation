@@ -1985,6 +1985,37 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
+// --- Admin Portal Authentication ---
+app.post(['/crm/auth/login', '/api/v1/auth/login'], (req, res) => {
+    const { username, password } = req.body || {};
+    const cleanUser = (username || '').trim().toLowerCase();
+    const cleanPass = (password || '').trim();
+
+    // Valid Admin Credentials
+    const validUsers = ['admin', 'itechadmin', 'admin@itechnic.com', '9361863063'];
+    const validPasswords = ['iTechnic@2026#', 'admin123', 'itech2026'];
+
+    if (validUsers.includes(cleanUser) && validPasswords.includes(cleanPass)) {
+        return res.json({
+            success: true,
+            token: 'itech_auth_token_' + Buffer.from(`${cleanUser}:${Date.now()}`).toString('base64'),
+            user: {
+                username: cleanUser === '9361863063' ? 'admin' : cleanUser,
+                name: 'iTechnic Administrator',
+                email: 'admin@itechnic.com',
+                role: 'Super Admin',
+                store: 'TV Malai Road, Tirukannur, Pondicherry',
+                hotline: '+91 9361863063'
+            }
+        });
+    }
+
+    return res.status(401).json({
+        success: false,
+        error: 'Invalid User ID or Password. Please check your credentials.'
+    });
+});
+
 // --- CRM Dashboard Endpoints ---
 app.get('/crm', async (req, res) => {
     try {

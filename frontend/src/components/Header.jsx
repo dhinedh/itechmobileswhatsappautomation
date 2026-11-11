@@ -8,7 +8,9 @@ function Header({
   onRefresh,
   onOpenBroadcast,
   onUpdateDp,
-  dpSyncing
+  dpSyncing,
+  currentUser,
+  onLogout
 }) {
   const navTabs = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -93,6 +95,24 @@ function Header({
           <span>↻</span>
           <span className="hidden sm:inline">Refresh</span>
         </button>
+
+        {onLogout && (
+          <div className="flex items-center gap-2 pl-2 border-l border-white/20">
+            <span className="hidden md:flex items-center gap-1.5 text-xs bg-black/20 px-2.5 py-1 rounded-lg border border-white/10 font-medium text-emerald-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>{currentUser?.name || 'Admin'}</span>
+            </span>
+
+            <button
+              onClick={onLogout}
+              className="bg-rose-500/80 hover:bg-rose-600 text-white border border-rose-400/40 py-1.5 px-3 rounded-lg transition-all text-xs font-bold shadow-sm flex items-center gap-1"
+              title="Sign out of Admin Dashboard"
+            >
+              <span>🚪</span>
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -12,6 +12,7 @@ import TemplateCreator from './components/TemplateCreator';
 import ApiDocsHub from './components/ApiDocsHub';
 import CustomerSidebar from './components/CustomerSidebar';
 import ExecutiveDashboard from './components/ExecutiveDashboard';
+import LoginPage from './components/LoginPage';
 import { isToday } from './utils/formatters';
 
 function App() {
@@ -396,6 +397,35 @@ function App() {
     }
   };
 
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('itech_auth_user') || sessionStorage.getItem('itech_auth_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('itech_auth_user');
+      localStorage.removeItem('itech_auth_token');
+      sessionStorage.removeItem('itech_auth_user');
+      sessionStorage.removeItem('itech_auth_token');
+    } catch (e) {
+      console.warn('Error clearing auth tokens:', e);
+    }
+  };
+
+  if (!currentUser) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} apiUrl={API_URL} />;
+  }
+
   return (
     <>
       <Header 
@@ -406,6 +436,8 @@ function App() {
         onOpenBroadcast={() => setShowBroadcast(true)}
         onUpdateDp={handleUpdateDp}
         dpSyncing={dpSyncing}
+        currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       {connectionError && (
