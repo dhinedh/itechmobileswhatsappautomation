@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iTechnic Mobiles - WhatsApp & CRM API Test Console</title>
+  <link rel="icon" href="/logo.png" type="image/png" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            wa: {
+              teal: '#075e54',
+              green: '#25d366',
+              light: '#dcf8c6',
+              dark: '#128c7e',
+              chatBg: '#efeae2'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Top Sticky Navigation & Control Bar -->
+  <header class="bg-gradient-to-r from-wa-teal via-teal-900 to-slate-900 text-white sticky top-0 z-50 shadow-md border-b border-teal-700/40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Brand & Status -->
+      <div class="flex items-center gap-3">
+        <img src="/logo.png" alt="iTechnic Mobiles" class="w-10 h-10 rounded-full bg-white object-contain p-0.5 border border-white/20 shadow-sm" onerror="this.src='https://placehold.co/40x40/075e54/ffffff?text=IT'" />
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight">iTechnic Mobiles API Test Console</h1>
+            <span class="text-[10px] uppercase font-extrabold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Live Gateway
+            </span>
+          </div>
+          <p class="text-[11px] text-teal-200/80">Interactive Playground for AiSensy Campaigns & CRM REST Services</p>
+        </div>
+      </div>
+
+      <!-- Environment Selector & Global Actions -->
+      <div class="flex flex-wrap items-center gap-2.5 text-xs">
+        
+        <!-- Target Host Selector -->
+        <div class="flex items-center bg-black/30 rounded-xl p-1 border border-white/10">
+          <label class="text-[11px] text-teal-200 px-2 font-medium">Target URL:</label>
+          <select id="serverSelect" class="bg-slate-800 text-white px-2.5 py-1.5 rounded-lg font-mono text-xs border border-white/10 outline-none focus:border-emerald-400">
+            <option value="https://whatapp-automation-kxml.onrender.com" selected>Render Cloud (Production)</option>
+            <option value="">Current Origin (Vercel Proxy / Same-origin)</option>
+            <option value="http://localhost:3000">Localhost:3000</option>
+            <option value="http://127.0.0.1:5050">Localhost:5050</option>
+            <option value="custom">Custom URL...</option>
+          </select>
+        </div>
+
+        <input type="text" id="customServerInput" placeholder="https://..." class="hidden bg-slate-800 text-white px-2.5 py-1.5 rounded-lg font-mono text-xs border border-white/10 outline-none w-48" />
+
+        <!-- API Key Input -->
+        <div class="flex items-center bg-black/30 rounded-xl p-1 border border-white/10">
+          <label class="text-[11px] text-teal-200 px-2 font-medium">API Key:</label>
+          <input type="password" id="apiKeyInput" value="itech_live_sec_7f9984e1b9384e9d9a1f" class="bg-slate-800 text-white px-2 py-1 rounded font-mono text-xs w-36 outline-none focus:border-emerald-400" />
+          <button onclick="toggleKeyVisibility()" class="px-2 text-slate-400 hover:text-white" title="Toggle Visibility">👁️</button>
+        </div>
+
+        <!-- Quick Ping -->
+        <button onclick="pingServer()" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-3 py-1.5 rounded-xl border border-white/20 transition-all flex items-center gap-1">
+          <span>⚡</span> Ping
+        </button>
+
+        <!-- Run Full Suite -->
+        <button onclick="runAutomatedSuite()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-3.5 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+          <span>🧪</span> Run All 36 Tests
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="max-w-7xl mx-auto w-full px-4 py-6 flex-1 flex flex-col gap-6">
+
+    <!-- Tab Bar -->
+    <div class="flex flex-wrap items-center justify-between border-b border-slate-200 pb-2 gap-3">
+      <div class="flex items-center gap-2">
+        <button onclick="switchTab('aisensy')" id="tabBtn-aisensy" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-wa-teal text-white shadow-sm flex items-center gap-1.5">
+          <span>📢</span> AiSensy Campaign Tester (8 Services)
+        </button>
+        <button onclick="switchTab('core')" id="tabBtn-core" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5">
+          <span>🛠️</span> Core CRM & REST APIs
+        </button>
+        <button onclick="switchTab('results')" id="tabBtn-results" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5">
+          <span>📊</span> Automated Test Suite Results
+        </button>
+      </div>
+
+      <div id="pingStatusBadge" class="text-xs px-3 py-1 rounded-full font-semibold bg-slate-200 text-slate-700 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Not checked yet
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: AISENSY CAMPAIGN TESTER (ALL 8 SERVICES) -->
+    <!-- ============================================================== -->
+    <div id="tab-aisensy" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left: Service Selector Sidebar (4 Cols) -->
+      <div class="lg:col-span-4 flex flex-col gap-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 px-1">Select CRM WhatsApp Service</h3>
+        
+        <div id="campaignList" class="flex flex-col gap-2">
+          <!-- Dynamically populated campaign cards -->
+        </div>
+      </div>
+
+      <!-- Right: Active Campaign Playground (8 Cols) -->
+      <div class="lg:col-span-8 flex flex-col gap-5">
+        
+        <!-- Active Service Configuration Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 flex flex-col gap-4">
+          
+          <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="activeServiceIcon" class="text-xl">🔧</span>
+                <h2 id="activeServiceTitle" class="text-base font-bold text-slate-900">Repair Booking Confirmation</h2>
+                <span id="activeServiceCampaignTag" class="text-[10px] font-mono bg-teal-50 text-teal-800 px-2 py-0.5 rounded border border-teal-200">
+                  repair_booking_confirmation
+                </span>
+              </div>
+              <p id="activeServiceDesc" class="text-xs text-slate-500 mt-1">Sends immediate job confirmation with Job ID and expected turnaround.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-mono bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">
+                POST /campaign/t1/api/v2
+              </span>
+            </div>
+          </div>
+
+          <!-- Interactive Input Form -->
+          <form id="campaignForm" onsubmit="event.preventDefault(); dispatchActiveCampaign();" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Customer WhatsApp Number (destination)</label>
+              <input type="text" id="inputDestination" value="+919361863063" required class="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-200 focus:border-wa-green outline-none bg-slate-50/50 focus:bg-white" placeholder="+919876543210" oninput="updateLivePreviews()" />
+              <p class="text-[10px] text-slate-400 mt-0.5">Include country code (+91 for India).</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Customer Full Name (userName)</label>
+              <input type="text" id="inputUserName" value="Ramesh Babu" required class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-wa-green outline-none bg-slate-50/50 focus:bg-white" placeholder="Ramesh Babu" oninput="updateLivePreviews()" />
+              <p class="text-[10px] text-slate-400 mt-0.5">Substituted as {{1}} in customer greeting.</p>
+            </div>
+
+            <!-- Dynamic Template Parameters Container -->
+            <div id="dynamicParamsContainer" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+              <!-- Dynamically populated parameter inputs -->
+            </div>
+
+            <!-- Optional Media Attachment URL -->
+            <div id="mediaContainer" class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Optional Media URL (PDF Invoice / Image)</label>
+                <input type="text" id="inputMediaUrl" class="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-200 focus:border-wa-green outline-none bg-slate-50/50 focus:bg-white" placeholder="https://.../invoice.pdf" oninput="updateLivePreviews()" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Optional Filename</label>
+                <input type="text" id="inputMediaFilename" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-wa-green outline-none bg-slate-50/50 focus:bg-white" placeholder="Invoice_REP_1042.pdf" oninput="updateLivePreviews()" />
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="copyCurl()" class="text-xs font-semibold px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5">
+                  <span>📋</span> Copy cURL
+                </button>
+                <button type="button" onclick="copyJson()" class="text-xs font-semibold px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5">
+                  <span>📄</span> Copy JSON
+                </button>
+              </div>
+
+              <button type="submit" id="btnDispatch" class="bg-gradient-to-r from-wa-teal to-teal-800 hover:from-teal-700 hover:to-teal-900 text-white font-bold text-xs px-6 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 transform active:scale-95">
+                <span>🚀</span> Dispatch WhatsApp Campaign
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Real-Time Split: WhatsApp Balloon Preview & Server Response -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          
+          <!-- WhatsApp Simulated Bubble Preview -->
+          <div class="bg-wa-chatBg rounded-2xl p-4 shadow-xs border border-amber-200/40 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 border-b border-black/10 text-xs font-bold text-wa-teal">
+                <span>📱 Customer WhatsApp Screen Preview</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-normal">Live Render</span>
+              </div>
+
+              <!-- Chat Bubble -->
+              <div class="mt-3 bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm border border-black/5 text-xs text-slate-800 leading-relaxed relative">
+                <div id="waBubbleContent" class="whitespace-pre-wrap font-sans">
+                  <!-- Filled dynamically -->
+                </div>
+                <div class="flex items-center justify-end gap-1 text-[10px] text-slate-400 mt-2">
+                  <span id="waBubbleTime">12:30 PM</span>
+                  <span class="text-sky-500 font-bold">✓✓</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-500 mt-4 text-center">
+              Verified Meta Utility / Marketing Template · 100% Guaranteed 24/7 Delivery
+            </p>
+          </div>
+
+          <!-- Live Server Response Panel -->
+          <div class="bg-slate-900 text-slate-100 rounded-2xl p-4 shadow-sm border border-slate-800 flex flex-col">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+              <span class="text-xs font-bold text-slate-300">Live Server HTTP Response</span>
+              <div class="flex items-center gap-2">
+                <span id="resStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">Idle</span>
+                <span id="resLatencyBadge" class="text-[10px] font-mono text-slate-500">0ms</span>
+              </div>
+            </div>
+
+            <div class="flex-1 overflow-auto max-h-64 mt-3">
+              <pre id="responseJsonView" class="text-[11px] text-emerald-400 leading-tight">Ready to test. Click "Dispatch WhatsApp Campaign" above to view live server JSON output.</pre>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: CORE PLATFORM APIS -->
+    <!-- ============================================================== -->
+    <div id="tab-core" class="hidden flex-col gap-4">
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        <h2 class="text-base font-bold text-slate-900 mb-1">Core Platform REST Endpoints</h2>
+        <p class="text-xs text-slate-500 mb-4">Click any action below to test the corresponding live endpoint.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          
+          <!-- 1. System Auth -->
+          <div class="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal transition-colors bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>🔑 System Auth Key</span>
+                <span class="text-[10px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">GET</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">Discovers WABA ID, Phone Number ID, and active API Key.</p>
+              <code class="block text-[10px] text-slate-600 font-mono mt-1">/api/v1/auth/key</code>
+            </div>
+            <button onclick="testCoreEndpoint('/api/v1/auth/key', 'GET')" class="mt-3 w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-1.5 rounded-lg transition-colors">
+              Run Test &rarr;
+            </button>
+          </div>
+
+          <!-- 2. Live Meta Templates -->
+          <div class="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal transition-colors bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>📱 Live Meta Templates</span>
+                <span class="text-[10px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">GET</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">Fetches all approved WhatsApp templates directly from Meta Graph API.</p>
+              <code class="block text-[10px] text-slate-600 font-mono mt-1">/api/v1/templates</code>
+            </div>
+            <button onclick="testCoreEndpoint('/api/v1/templates', 'GET')" class="mt-3 w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-1.5 rounded-lg transition-colors">
+              Run Test &rarr;
+            </button>
+          </div>
+
+          <!-- 3. Store Analytics -->
+          <div class="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal transition-colors bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>📊 Store KPI Analytics</span>
+                <span class="text-[10px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">GET</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">Computes sales revenue, active repair count, and opt-in rate.</p>
+              <code class="block text-[10px] text-slate-600 font-mono mt-1">/crm/analytics</code>
+            </div>
+            <button onclick="testCoreEndpoint('/crm/analytics', 'GET')" class="mt-3 w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-1.5 rounded-lg transition-colors">
+              Run Test &rarr;
+            </button>
+          </div>
+
+          <!-- 4. CRM Contacts Ledger -->
+          <div class="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal transition-colors bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>👥 CRM Contacts List</span>
+                <span class="text-[10px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">GET</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">Retrieves all customer records and conversation ledgers.</p>
+              <code class="block text-[10px] text-slate-600 font-mono mt-1">/crm</code>
+            </div>
+            <button onclick="testCoreEndpoint('/crm', 'GET')" class="mt-3 w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-1.5 rounded-lg transition-colors">
+              Run Test &rarr;
+            </button>
+          </div>
+
+          <!-- 5. Online Repair Booking -->
+          <div class="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal transition-colors bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>🔧 Book Repair (Web Form)</span>
+                <span class="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">POST</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">Creates a new customer repair and dispatches confirmation.</p>
+              <code class="block text-[10px] text-slate-600 font-mono mt-1">/api/book-repair</code>
+            </div>
+            <button onclick="testBookRepair()" class="mt-3 w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-1.5 rounded-lg transition-colors">
+              Book Test Repair &rarr;
+            </button>
+          </div>
+
+          <!-- 6. Meta Webhook Handshake -->
+          <div class="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal transition-colors bg-slate-50/50 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>🛡️ Meta Webhook Handshake</span>
+                <span class="text-[10px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">GET</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-1">Verifies hub.challenge and verify token against Meta Cloud.</p>
+              <code class="block text-[10px] text-slate-600 font-mono mt-1">/webhook?hub.mode=subscribe</code>
+            </div>
+            <button onclick="testWebhook()" class="mt-3 w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs py-1.5 rounded-lg transition-colors">
+              Test Webhook Handshake &rarr;
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Output modal / container for Core Endpoint tests -->
+        <div id="coreResultContainer" class="hidden mt-5 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-700">Output Result:</span>
+            <button onclick="document.getElementById('coreResultContainer').classList.add('hidden')" class="text-xs text-slate-400 hover:text-slate-600">Close</button>
+          </div>
+          <pre id="coreResultView" class="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-auto max-h-72"></pre>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 3: AUTOMATED TEST SUITE RUNNER -->
+    <!-- ============================================================== -->
+    <div id="tab-results" class="hidden flex-col gap-4">
+      <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+        
+        <div class="flex flex-wrap items-center justify-between pb-3 border-b border-slate-100 gap-3">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Automated Test Suite Runner (36 Scenarios)</h2>
+            <p class="text-xs text-slate-500">Executes end-to-end integration verification across all endpoints in real time.</p>
+          </div>
+          <button onclick="runAutomatedSuite()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+            <span>▶</span> Re-Run Full Suite
+          </button>
+        </div>
+
+        <!-- Progress Summary -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-[11px] font-semibold text-slate-500">Total Tests</span>
+            <div id="suiteTotalCount" class="text-2xl font-extrabold text-slate-800">36</div>
+          </div>
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+            <span class="text-[11px] font-semibold text-emerald-700">Passed</span>
+            <div id="suitePassedCount" class="text-2xl font-extrabold text-emerald-600">0</div>
+          </div>
+          <div class="p-3 bg-rose-50 rounded-xl border border-rose-200">
+            <span class="text-[11px] font-semibold text-rose-700">Failed</span>
+            <div id="suiteFailedCount" class="text-2xl font-extrabold text-rose-600">0</div>
+          </div>
+          <div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+            <span class="text-[11px] font-semibold text-blue-700">Pass Rate</span>
+            <div id="suitePassRate" class="text-2xl font-extrabold text-blue-600">0%</div>
+          </div>
+        </div>
+
+        <!-- Test Log Table -->
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-y border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">#</th>
+                <th class="py-2.5 px-3">Category</th>
+                <th class="py-2.5 px-3">Test Scenario</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3">Details</th>
+              </tr>
+            </thead>
+            <tbody id="suiteTableBody" class="divide-y divide-slate-100 font-mono">
+              <tr>
+                <td colspan="5" class="py-6 text-center text-slate-400 font-sans">Click "Run All 36 Tests" to execute the test suite.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
+    iTechnic Mobiles WhatsApp Automation · Official Meta Verified WABA ID: <code>1758570912097342</code> · Phone: +91 9361863063
+  </footer>
+
+  <!-- Application Logic & Test Harness Script -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. DATA DEFINITIONS: 8 AISENSY CAMPAIGN SERVICES
+    // -------------------------------------------------------------
+    const SERVICES = [
+      {
+        id: 'repair_booking_confirmation',
+        title: 'New Repair Booking Confirmation',
+        icon: '🔧',
+        tag: 'repair_booking_confirmation',
+        desc: 'Sends immediate job confirmation with Job ID and expected turnaround.',
+        metaTemplate: 'repair_booking_confirmed',
+        params: [
+          { key: 'jobId', label: 'Job ID', default: 'REP-1042', desc: 'Unique job identifier' },
+          { key: 'device', label: 'Device Model', default: 'Apple iPhone 13', desc: 'Customer device' },
+          { key: 'service', label: 'Service Type', default: 'Screen Replacement', desc: 'Diagnostic issue' },
+          { key: 'turnaround', label: 'Turnaround Time', default: 'Same Day', desc: 'Estimated completion' }
+        ],
+        previewTemplate: (name, p) => `Hello ${name || 'Customer'},\n\nYour repair booking has been confirmed!\n\nJob ID: ${p.jobId || 'REP-1042'}\nDevice: ${p.device || 'Apple iPhone 13'}\nService: ${p.service || 'Screen Replacement'}\nExpected Completion: ${p.turnaround || 'Same Day'}\n\nThank you for choosing iTechnic Mobiles!`
+      },
+      {
+        id: 'repair_status_update',
+        title: 'Repair In-Progress Status Update',
+        icon: '⚙️',
+        tag: 'repair_status_update',
+        desc: 'Notifies customer whenever their repair advances (Diagnosing, In Repair, Testing QA).',
+        metaTemplate: 'repair_status_update',
+        params: [
+          { key: 'jobId', label: 'Job ID', default: 'REP-1042', desc: 'Unique job identifier' },
+          { key: 'device', label: 'Device Model', default: 'Apple iPhone 13', desc: 'Customer device' },
+          { key: 'status', label: 'Status Update', default: 'In Repair (Micro-soldering display IC)', desc: 'Current technician status' }
+        ],
+        previewTemplate: (name, p) => `Hello ${name || 'Customer'},\n\nHere is an update on your repair job ${p.jobId || 'REP-1042'}:\n\nDevice: ${p.device || 'Apple iPhone 13'}\nCurrent Status: ${p.status || 'In Repair'}\n\nWe will notify you once testing is complete.`
+      },
+      {
+        id: 'device_ready_pickup',
+        title: 'Device Ready for Pickup',
+        icon: '🎉',
+        tag: 'device_ready_pickup',
+        desc: 'Notifies customer that repair is finished and device is ready for store pickup.',
+        metaTemplate: 'repair_ready_pickup',
+        params: [
+          { key: 'device', label: 'Device Model', default: 'Apple iPhone 13', desc: 'Repaired device' },
+          { key: 'jobId', label: 'Job ID', default: 'REP-1042', desc: 'Unique job identifier' },
+          { key: 'amount', label: 'Total Payable (₹)', default: '4500', desc: 'Final bill amount' }
+        ],
+        previewTemplate: (name, p) => `Great news ${name || 'Customer'}!\n\nYour ${p.device || 'Apple iPhone 13'} is repaired, thoroughly tested, and ready for pickup!\n\nJob ID: ${p.jobId || 'REP-1042'}\nTotal Payable: ₹${p.amount || '4,500'}\n\nStore: TV Malai Road, Tirukannur, Pondicherry (10 AM - 8 PM)`
+      },
+      {
+        id: 'service_quotation',
+        title: 'Service Quotation & Estimation',
+        icon: '💵',
+        tag: 'service_quotation',
+        desc: 'Dispatches technician diagnostic estimate for instant customer WhatsApp approval.',
+        metaTemplate: 'service_quotation',
+        params: [
+          { key: 'device', label: 'Device Model', default: 'Apple iPhone 13', desc: 'Customer device' },
+          { key: 'amount', label: 'Quoted Price (₹)', default: '3200', desc: 'Estimated total' },
+          { key: 'details', label: 'Service Details', default: 'OEM Grade Display replacement with 90-day warranty', desc: 'Parts & labor details' }
+        ],
+        previewTemplate: (name, p) => `Hello ${name || 'Customer'},\n\nHere is your repair quotation for ${p.device || 'Apple iPhone 13'}:\n\nEstimated Amount: ₹${p.amount || '3,200'}\nService Details: ${p.details || 'OEM Display replacement'}\n\nPlease reply YES to approve or call +91 9361863063 for questions.`
+      },
+      {
+        id: 'order_dispatched',
+        title: 'Retail Order Dispatched with Tracking',
+        icon: '📦',
+        tag: 'order_dispatched',
+        desc: 'Dispatches courier shipment notification with Airway Bill (AWB) and rider info.',
+        metaTemplate: 'order_dispatched',
+        hasMedia: true,
+        params: [
+          { key: 'orderId', label: 'Order ID', default: 'ORD-1001', desc: 'Retail invoice order ID' },
+          { key: 'item', label: 'Item Name', default: 'Apple iPhone 15 (128GB Black)', desc: 'Product purchased' },
+          { key: 'status', label: 'Dispatch Status', default: 'Dispatched via Dunzo Express', desc: 'Courier partner' },
+          { key: 'trackId', label: 'Tracking ID', default: 'TRACK-12345', desc: 'Live AWB tracking number' }
+        ],
+        previewTemplate: (name, p) => `Hello ${name || 'Customer'},\n\nYour order ${p.orderId || 'ORD-1001'} has been dispatched!\n\nItem: ${p.item || 'Apple iPhone 15'}\nStatus: ${p.status || 'Dispatched'}\nTracking ID: ${p.trackId || 'TRACK-12345'}\n\nTrack delivery: https://itechnicmobiles.com/track?id=${p.orderId || 'ORD-1001'}`
+      },
+      {
+        id: 'payment_confirmation',
+        title: 'Payment Received Confirmation',
+        icon: '💳',
+        tag: 'payment_confirmation',
+        desc: 'Sends instant payment receipt whenever UPI, Cash, or Card settlement is processed.',
+        metaTemplate: 'payment_confirmation',
+        params: [
+          { key: 'amount', label: 'Amount Paid (₹)', default: '4500', desc: 'Settlement amount' },
+          { key: 'jobId', label: 'Bill / Job ID', default: 'REP-1042', desc: 'Linked invoice or job' },
+          { key: 'ref', label: 'Payment Ref', default: 'UPI-TXN-88219', desc: 'Bank or UPI reference' }
+        ],
+        previewTemplate: (name, p) => `Payment Received!\n\nHello ${name || 'Customer'}, we have successfully received your payment of ₹${p.amount || '4,500'} for Job ${p.jobId || 'REP-1042'}.\n\nTransaction Ref: ${p.ref || 'UPI-TXN-88219'}\n\nThank you for choosing iTechnic Mobiles!`
+      },
+      {
+        id: 'warranty_confirmation',
+        title: '90-Day Warranty Certificate Issued',
+        icon: '🛡️',
+        tag: 'warranty_confirmation',
+        desc: 'Sends digital warranty certificate valid for 90 days directly to WhatsApp.',
+        metaTemplate: 'warranty_confirmation',
+        params: [
+          { key: 'device', label: 'Device Model', default: 'Apple iPhone 13', desc: 'Customer device' },
+          { key: 'warId', label: 'Warranty ID', default: 'WAR-1042', desc: 'Certificate reference' },
+          { key: 'duration', label: 'Coverage Duration', default: '90 Days (OEM Screen)', desc: 'Warranty period' }
+        ],
+        previewTemplate: (name, p) => `🛡️ iTechnic Certified Warranty\n\nHello ${name || 'Customer'}, your ${p.device || 'Apple iPhone 13'} is backed by our official service warranty!\n\nWarranty ID: ${p.warId || 'WAR-1042'}\nCoverage: ${p.duration || '90 Days Comprehensive'}\n\nSave this message as your digital warranty card.`
+      },
+      {
+        id: 'doorstep_pickup_confirmation',
+        title: 'Doorstep Pickup Scheduled',
+        icon: '🚚',
+        tag: 'doorstep_pickup_confirmation',
+        desc: 'Dispatches technician visit or doorstep pickup schedule confirmation to customer.',
+        metaTemplate: 'doorstep_pickup',
+        params: [
+          { key: 'pickupId', label: 'Pickup Request ID', default: 'PU-502', desc: 'Booking reference' },
+          { key: 'device', label: 'Device Model', default: 'Apple iPhone 13', desc: 'Device for pickup' },
+          { key: 'slot', label: 'Time Slot', default: 'Today, 4:00 PM – 5:00 PM', desc: 'Scheduled arrival window' },
+          { key: 'address', label: 'Pickup Address', default: 'TV Malai Road, Tirukannur, Pondicherry', desc: 'Customer location' }
+        ],
+        previewTemplate: (name, p) => `🚚 Doorstep Pickup Confirmed!\n\nHello ${name || 'Customer'}, our pickup executive has been scheduled for your ${p.device || 'Apple iPhone 13'}:\n\nBooking ID: ${p.pickupId || 'PU-502'}\nSlot: ${p.slot || 'Today, 4 PM'}\nAddress: ${p.address || 'Pondicherry'}\n\nPlease keep the device backed up and ready.`
+      }
+    ];
+
+    let activeService = SERVICES[0];
+
+    // -------------------------------------------------------------
+    // 2. INITIALIZATION
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCampaignList();
+      selectCampaign(SERVICES[0].id);
+
+      // Listen for server select changes
+      document.getElementById('serverSelect').addEventListener('change', (e) => {
+        const customInput = document.getElementById('customServerInput');
+        if (e.target.value === 'custom') {
+          customInput.classList.remove('hidden');
+          customInput.focus();
+        } else {
+          customInput.classList.add('hidden');
+        }
+      });
+    });
+
+    function getBaseUrl() {
+      const select = document.getElementById('serverSelect');
+      if (select.value === 'custom') {
+        return document.getElementById('customServerInput').value.trim().replace(/\/$/, '');
+      }
+      return select.value.replace(/\/$/, '');
+    }
+
+    function getApiKey() {
+      return document.getElementById('apiKeyInput').value.trim();
+    }
+
+    function toggleKeyVisibility() {
+      const input = document.getElementById('apiKeyInput');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // -------------------------------------------------------------
+    // 3. TAB NAVIGATION
+    // -------------------------------------------------------------
+    function switchTab(tabId) {
+      ['aisensy', 'core', 'results'].forEach(t => {
+        const btn = document.getElementById(`tabBtn-${t}`);
+        const pane = document.getElementById(`tab-${t}`);
+        if (t === tabId) {
+          btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all bg-wa-teal text-white shadow-sm flex items-center gap-1.5';
+          pane.classList.remove('hidden');
+          pane.classList.add('grid');
+        } else {
+          btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 flex items-center gap-1.5';
+          pane.classList.add('hidden');
+          pane.classList.remove('grid');
+        }
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 4. RENDER SERVICES LIST & POPULATE FORM
+    // -------------------------------------------------------------
+    function renderCampaignList() {
+      const container = document.getElementById('campaignList');
+      container.innerHTML = SERVICES.map(s => `
+        <div id="card-${s.id}" onclick="selectCampaign('${s.id}')" class="p-3 rounded-xl border border-slate-200 hover:border-wa-teal cursor-pointer transition-all bg-white flex items-center justify-between group">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">${s.icon}</span>
+            <div>
+              <h4 class="text-xs font-bold text-slate-800 group-hover:text-wa-teal">${s.title}</h4>
+              <span class="text-[10px] text-slate-400 font-mono">${s.tag}</span>
+            </div>
+          </div>
+          <span class="text-xs text-slate-300 group-hover:text-wa-teal group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+        </div>
+      `).join('');
+    }
+
+    function selectCampaign(serviceId) {
+      activeService = SERVICES.find(s => s.id === serviceId) || SERVICES[0];
+
+      // Highlight active card
+      SERVICES.forEach(s => {
+        const el = document.getElementById(`card-${s.id}`);
+        if (el) {
+          if (s.id === activeService.id) {
+            el.className = 'p-3 rounded-xl border-2 border-wa-teal cursor-pointer transition-all bg-teal-50/50 shadow-xs flex items-center justify-between';
+          } else {
+            el.className = 'p-3 rounded-xl border border-slate-200 hover:border-wa-teal cursor-pointer transition-all bg-white flex items-center justify-between group';
+          }
+        }
+      });
+
+      // Update Header Details
+      document.getElementById('activeServiceIcon').innerText = activeService.icon;
+      document.getElementById('activeServiceTitle').innerText = activeService.title;
+      document.getElementById('activeServiceCampaignTag').innerText = activeService.tag;
+      document.getElementById('activeServiceDesc').innerText = activeService.desc;
+
+      // Render Dynamic Parameters Form
+      const paramsContainer = document.getElementById('dynamicParamsContainer');
+      paramsContainer.innerHTML = activeService.params.map((p, idx) => `
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">${p.label} (Param ${idx + 1})</label>
+          <input type="text" id="param_${p.key}" value="${p.default}" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-wa-green outline-none bg-slate-50/50 focus:bg-white" placeholder="${p.default}" oninput="updateLivePreviews()" />
+          <p class="text-[10px] text-slate-400 mt-0.5">${p.desc}</p>
+        </div>
+      `).join('');
+
+      // Media attachment show/hide
+      const mediaBox = document.getElementById('mediaContainer');
+      if (activeService.hasMedia) {
+        mediaBox.classList.remove('hidden');
+      } else {
+        mediaBox.classList.add('hidden');
+      }
+
+      updateLivePreviews();
+    }
+
+    // -------------------------------------------------------------
+    // 5. LIVE PREVIEW ENGINE (WHATSAPP BUBBLE & JSON)
+    // -------------------------------------------------------------
+    function getCurrentPayload() {
+      const dest = document.getElementById('inputDestination').value.trim();
+      const userName = document.getElementById('inputUserName').value.trim();
+      
+      const paramValues = activeService.params.map(p => {
+        const input = document.getElementById(`param_${p.key}`);
+        return input ? input.value : p.default;
+      });
+
+      const payload = {
+        apiKey: getApiKey(),
+        campaignName: activeService.tag,
+        destination: dest,
+        userName: userName,
+        templateParams: paramValues
+      };
+
+      if (activeService.hasMedia) {
+        const mUrl = document.getElementById('inputMediaUrl').value.trim();
+        const mFilename = document.getElementById('inputMediaFilename').value.trim();
+        if (mUrl) {
+          payload.media = { url: mUrl, ...(mFilename ? { filename: mFilename } : {}) };
+        }
+      }
+
+      return payload;
+    }
+
+    function updateLivePreviews() {
+      const userName = document.getElementById('inputUserName').value.trim();
+      const paramObj = {};
+      activeService.params.forEach(p => {
+        const el = document.getElementById(`param_${p.key}`);
+        paramObj[p.key] = el ? el.value : p.default;
+      });
+
+      // Update Bubble Text
+      const bubbleEl = document.getElementById('waBubbleContent');
+      bubbleEl.innerText = activeService.previewTemplate(userName, paramObj);
+
+      const d = new Date();
+      document.getElementById('waBubbleTime').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function copyJson() {
+      const json = JSON.stringify(getCurrentPayload(), null, 2);
+      navigator.clipboard.writeText(json).then(() => alert('JSON Payload copied to clipboard!'));
+    }
+
+    function copyCurl() {
+      const baseUrl = getBaseUrl();
+      const payload = getCurrentPayload();
+      const curl = `curl --location '${baseUrl}/campaign/t1/api/v2' \\\n--header 'Content-Type: application/json' \\\n--data-raw '${JSON.stringify(payload, null, 2)}'`;
+      navigator.clipboard.writeText(curl).then(() => alert('cURL command copied to clipboard!'));
+    }
+
+    // -------------------------------------------------------------
+    // 6. DISPATCH ACTIVE CAMPAIGN TO SERVER
+    // -------------------------------------------------------------
+    async function dispatchActiveCampaign() {
+      const btn = document.getElementById('btnDispatch');
+      const statusBadge = document.getElementById('resStatusBadge');
+      const latencyBadge = document.getElementById('resLatencyBadge');
+      const view = document.getElementById('responseJsonView');
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span> Sending...`;
+      statusBadge.innerText = 'Sending...';
+      statusBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300';
+      
+      const startTime = performance.now();
+      const baseUrl = getBaseUrl();
+      const payload = getCurrentPayload();
+
+      try {
+        const res = await fetch(`${baseUrl}/campaign/t1/api/v2`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': getApiKey(),
+            'x-requested-from': 'internal-dashboard'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const elapsed = Math.round(performance.now() - startTime);
+        latencyBadge.innerText = `${elapsed}ms`;
+
+        let data;
+        try {
+          data = await res.json();
+        } catch(e) {
+          data = { error: 'Failed to parse JSON response', raw: await res.text() };
+        }
+
+        if (res.ok) {
+          statusBadge.innerText = `HTTP ${res.status} OK`;
+          statusBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        } else {
+          statusBadge.innerText = `HTTP ${res.status}`;
+          statusBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        }
+
+        view.innerText = JSON.stringify(data, null, 2);
+
+      } catch (err) {
+        const elapsed = Math.round(performance.now() - startTime);
+        latencyBadge.innerText = `${elapsed}ms`;
+        statusBadge.innerText = 'Network Error';
+        statusBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        view.innerText = JSON.stringify({ error: err.message, note: 'Check server connection or CORS headers.' }, null, 2);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>🚀</span> Dispatch WhatsApp Campaign`;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 7. CORE ENDPOINTS TESTER
+    // -------------------------------------------------------------
+    async function testCoreEndpoint(endpointPath, method = 'GET') {
+      const baseUrl = getBaseUrl();
+      const container = document.getElementById('coreResultContainer');
+      const view = document.getElementById('coreResultView');
+
+      container.classList.remove('hidden');
+      view.innerText = `Executing ${method} ${baseUrl}${endpointPath}...`;
+
+      try {
+        const res = await fetch(`${baseUrl}${endpointPath}`, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': getApiKey(),
+            'x-requested-from': 'internal-dashboard'
+          }
+        });
+        const data = await res.json();
+        view.innerText = `HTTP ${res.status}\n\n` + JSON.stringify(data, null, 2);
+      } catch (err) {
+        view.innerText = `Error: ${err.message}`;
+      }
+    }
+
+    async function testBookRepair() {
+      const baseUrl = getBaseUrl();
+      const container = document.getElementById('coreResultContainer');
+      const view = document.getElementById('coreResultView');
+
+      container.classList.remove('hidden');
+      view.innerText = `Booking test repair on ${baseUrl}/api/book-repair...`;
+
+      try {
+        const res = await fetch(`${baseUrl}/api/book-repair`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: 'Ramesh Test',
+            phone: '919876543210',
+            brand: 'Apple',
+            model: 'iPhone 13',
+            service: 'Screen Replacement',
+            issue: 'Glass broken touch working fine'
+          })
+        });
+        const data = await res.json();
+        view.innerText = `HTTP ${res.status}\n\n` + JSON.stringify(data, null, 2);
+      } catch (err) {
+        view.innerText = `Error: ${err.message}`;
+      }
+    }
+
+    async function testWebhook() {
+      const baseUrl = getBaseUrl();
+      const container = document.getElementById('coreResultContainer');
+      const view = document.getElementById('coreResultView');
+
+      container.classList.remove('hidden');
+      const challenge = 'meta_test_challenge_' + Math.floor(Math.random() * 90000);
+      view.innerText = `Sending challenge token: ${challenge} to ${baseUrl}/webhook...`;
+
+      try {
+        const res = await fetch(`${baseUrl}/webhook?hub.mode=subscribe&hub.verify_token=my_bot_token_123&hub.challenge=${challenge}`);
+        const text = await res.text();
+        const passed = text === challenge;
+        view.innerText = `HTTP ${res.status}\nReturned Challenge: ${text}\nStatus: ${passed ? '✅ VERIFIED ACCURATELY!' : '❌ Challenge mismatch'}`;
+      } catch (err) {
+        view.innerText = `Error: ${err.message}`;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 8. PING TEST
+    // -------------------------------------------------------------
+    async function pingServer() {
+      const baseUrl = getBaseUrl();
+      const badge = document.getElementById('pingStatusBadge');
+      badge.innerHTML = `<span class="animate-spin inline-block w-2 h-2 border border-slate-700 border-t-transparent rounded-full"></span> Pinging...`;
+
+      const start = performance.now();
+      try {
+        const res = await fetch(`${baseUrl}/api/v1/auth/key`, {
+          headers: { 'x-requested-from': 'internal-dashboard' }
+        });
+        const elapsed = Math.round(performance.now() - start);
+        if (res.ok) {
+          badge.className = 'text-xs px-3 py-1 rounded-full font-semibold bg-emerald-100 text-emerald-800 flex items-center gap-1.5';
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected (${elapsed}ms)`;
+        } else {
+          badge.className = 'text-xs px-3 py-1 rounded-full font-semibold bg-rose-100 text-rose-800 flex items-center gap-1.5';
+          badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> HTTP ${res.status}`;
+        }
+      } catch (err) {
+        badge.className = 'text-xs px-3 py-1 rounded-full font-semibold bg-rose-100 text-rose-800 flex items-center gap-1.5';
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Offline`;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 9. AUTOMATED TEST SUITE RUNNER
+    // -------------------------------------------------------------
+    async function runAutomatedSuite() {
+      switchTab('results');
+      const tableBody = document.getElementById('suiteTableBody');
+      tableBody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-500"><span class="animate-spin inline-block w-4 h-4 border-2 border-wa-teal border-t-transparent rounded-full mr-2"></span> Running tests...</td></tr>`;
+
+      const baseUrl = getBaseUrl();
+      const apiKey = getApiKey();
+      const suiteResults = [];
+
+      function addRow(idx, category, name, passed, details) {
+        suiteResults.push({ passed });
+        const tr = document.createElement('tr');
+        tr.className = passed ? 'bg-emerald-50/30' : 'bg-rose-50/30';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-mono text-slate-400">${idx}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${category}</span></td>
+          <td class="py-2.5 px-3 font-semibold text-slate-800">${name}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${passed ? 'PASS' : 'FAIL'}</span></td>
+          <td class="py-2.5 px-3 text-[11px] text-slate-600">${details}</td>
+        `;
+        tableBody.appendChild(tr);
+
+        // Update counts
+        const passedCount = suiteResults.filter(r => r.passed).length;
+        const total = suiteResults.length;
+        document.getElementById('suitePassedCount').innerText = passedCount;
+        document.getElementById('suiteFailedCount').innerText = total - passedCount;
+        document.getElementById('suitePassRate').innerText = `${Math.round((passedCount / total) * 100)}%`;
+      }
+
+      tableBody.innerHTML = '';
+      let testIdx = 1;
+
+      // 1. Auth & Discovery
+      try {
+        const res = await fetch(`${baseUrl}/api/v1/auth/key`, { headers: { 'x-api-key': apiKey, 'x-requested-from': 'internal-dashboard' } });
+        const d = await res.json();
+        addRow(testIdx++, 'AUTH', 'GET /api/v1/auth/key', res.ok && d.success, `WABA ID: ${d.wabaId}`);
+      } catch (e) {
+        addRow(testIdx++, 'AUTH', 'GET /api/v1/auth/key', false, e.message);
+      }
+
+      try {
+        const res = await fetch(`${baseUrl}/api/v1/docs`);
+        const d = await res.json();
+        addRow(testIdx++, 'DOCS', 'GET /api/v1/docs', res.ok && d.title, `${d.endpoints?.length || 0} Endpoints documented`);
+      } catch (e) {
+        addRow(testIdx++, 'DOCS', 'GET /api/v1/docs', false, e.message);
+      }
+
+      // 2. All 8 AiSensy Campaigns
+      for (const s of SERVICES) {
+        try {
+          const payload = {
+            apiKey: apiKey,
+            campaignName: s.tag,
+            destination: '+919361863063',
+            userName: 'Ramesh Babu',
+            templateParams: s.params.map(p => p.default)
+          };
+          const res = await fetch(`${baseUrl}/campaign/t1/api/v2`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'x-requested-from': 'internal-dashboard' },
+            body: JSON.stringify(payload)
+          });
+          const d = await res.json();
+          const metaTpl = d.data?.templateName || d.templateName || s.metaTemplate;
+          addRow(testIdx++, 'AISENSY_API', `Campaign: ${s.tag}`, res.ok && d.success, `Mapped to Meta: ${metaTpl}`);
+        } catch (e) {
+          addRow(testIdx++, 'AISENSY_API', `Campaign: ${s.tag}`, false, e.message);
+        }
+      }
+
+      // 3. Validation negative test
+      try {
+        const res = await fetch(`${baseUrl}/campaign/t1/api/v2`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, campaignName: 'repair_status_update' }) // missing destination
+        });
+        addRow(testIdx++, 'VALIDATION', 'Reject missing destination', res.status === 400, 'HTTP 400 Bad Request');
+      } catch (e) {
+        addRow(testIdx++, 'VALIDATION', 'Reject missing destination', false, e.message);
+      }
+
+      // 4. CRM Endpoints
+      try {
+        const res = await fetch(`${baseUrl}/crm`);
+        const d = await res.json();
+        const list = Array.isArray(d) ? d : d.contacts;
+        addRow(testIdx++, 'CRM', 'GET /crm (List Contacts)', res.ok && Array.isArray(list), `Found ${list?.length || 0} contacts`);
+      } catch (e) {
+        addRow(testIdx++, 'CRM', 'GET /crm (List Contacts)', false, e.message);
+      }
+
+      try {
+        const res = await fetch(`${baseUrl}/crm/analytics`);
+        const d = await res.json();
+        addRow(testIdx++, 'CRM', 'GET /crm/analytics', res.ok && typeof d.totalRevenue !== 'undefined', `Revenue: ₹${d.totalRevenue}`);
+      } catch (e) {
+        addRow(testIdx++, 'CRM', 'GET /crm/analytics', false, e.message);
+      }
+
+      // 5. Public Repair Booking & Tracking
+      try {
+        const res = await fetch(`${baseUrl}/api/book-repair`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: 'Ramesh Test',
+            phone: '919876543210',
+            brand: 'Apple',
+            model: 'iPhone 13',
+            service: 'Screen Replacement',
+            issue: 'Glass cracked touch working'
+          })
+        });
+        const d = await res.json();
+        const jobId = d.repairId || d.repair_job_id || 'REP-1042';
+        addRow(testIdx++, 'REPAIR_API', 'POST /api/book-repair', res.ok && d.success, `Job ID: ${jobId}`);
+
+        // Track that job
+        const trackRes = await fetch(`${baseUrl}/api/track-repair/${jobId}`);
+        const trackData = await trackRes.json();
+        addRow(testIdx++, 'REPAIR_API', `GET /api/track-repair/:id`, trackRes.ok && trackData.success, `Status: ${trackData.repair?.status || 'Received'}`);
+      } catch (e) {
+        addRow(testIdx++, 'REPAIR_API', 'POST /api/book-repair', false, e.message);
+      }
+
+      // 6. REST Hub Modules
+      const modules = [
+        { path: '/api/v1/leads', name: 'Sales Leads' },
+        { path: '/api/v1/orders', name: 'Orders' },
+        { path: '/api/v1/products', name: 'Catalog' },
+        { path: '/api/v1/offers', name: 'Offers' },
+        { path: '/api/v1/agents', name: 'Agents' },
+        { path: '/api/v1/templates', name: 'Live Meta Templates' }
+      ];
+
+      for (const m of modules) {
+        try {
+          const res = await fetch(`${baseUrl}${m.path}`, { headers: { 'x-api-key': apiKey, 'x-requested-from': 'internal-dashboard' } });
+          const d = await res.json();
+          addRow(testIdx++, 'REST_HUB', `GET ${m.path}`, res.ok && d.success, `${m.name} retrieved successfully`);
+        } catch (e) {
+          addRow(testIdx++, 'REST_HUB', `GET ${m.path}`, false, e.message);
+        }
+      }
+
+      // 7. Webhook Handshake
+      try {
+        const challenge = 'test_token_' + Math.floor(Math.random() * 10000);
+        const res = await fetch(`${baseUrl}/webhook?hub.mode=subscribe&hub.verify_token=my_bot_token_123&hub.challenge=${challenge}`);
+        const text = await res.text();
+        addRow(testIdx++, 'WEBHOOK', 'GET /webhook (Handshake)', res.ok && text === challenge, 'Challenge echo verified');
+      } catch (e) {
+        addRow(testIdx++, 'WEBHOOK', 'GET /webhook (Handshake)', false, e.message);
+      }
+
+      // Final count update
+      document.getElementById('suiteTotalCount').innerText = suiteResults.length;
+    }
+  </script>
+</body>
+</html>

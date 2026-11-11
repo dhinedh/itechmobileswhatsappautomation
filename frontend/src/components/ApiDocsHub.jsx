@@ -743,8 +743,17 @@ echo $response;
             ))}
           </div>
 
-          {/* Download Developer Integration Document */}
+          {/* Download Developer Integration Document & Live Tester */}
           <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href="/api-tester.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold text-xs rounded-lg transition-all flex items-center gap-1.5 shadow-md"
+              title="Open Interactive Live API Tester Webpage"
+            >
+              <span>🧪</span> Live API Tester
+            </a>
             <a
               href={`${currentBaseUrl}/api/v1/docs/download?format=pdf`}
               download="iTechnic_ERP_WhatsApp_API_Integration_Guide.pdf"

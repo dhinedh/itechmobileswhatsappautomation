@@ -54,6 +54,14 @@ function ExecutiveDashboard({
               <span>📢</span> WhatsApp Broadcast
             </button>
           )}
+          <a
+            href="/api-tester.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-sm transition-all flex items-center gap-1.5"
+          >
+            <span>🧪</span> Live API Tester
+          </a>
           {onNavigateTab && (
             <button
               onClick={() => onNavigateTab('apidocs')}
