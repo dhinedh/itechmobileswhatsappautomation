@@ -52,6 +52,8 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/whatsapp-crm';
 const SALES_TEAM_PHONE = process.env.SALES_TEAM_PHONE || '919361863063';
 const BACKEND_URL = process.env.BACKEND_URL || 'https://whatapp-automation-kxml.onrender.com';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://itechmobileswhatsappautomation.vercel.app';
+
 
 // Official iTechnic Mobiles Assets & Details
 const BANNER_IMAGE_URL = `${BACKEND_URL}/technician-repairing-phone.png`;
