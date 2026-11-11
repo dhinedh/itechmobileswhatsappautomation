@@ -60,7 +60,8 @@ async function sendTemplateMessage(to, templateName, bodyVariables = [], media =
         headers: {
           Authorization: `Bearer ${ACCESS_TOKEN}`,
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 7000
       }
     );
 

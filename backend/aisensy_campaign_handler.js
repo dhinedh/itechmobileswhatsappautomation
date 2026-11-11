@@ -102,7 +102,7 @@ async function handleAiSensyCampaign(req, res) {
     // 5. Save to MongoDB CRM Ledger (if connected)
     try {
       const Contact = mongoose.models.Contact;
-      if (Contact) {
+      if (Contact && mongoose.connection.readyState === 1) {
         let contact = await Contact.findOne({ phone: cleanPhone });
         if (!contact) {
           contact = new Contact({
