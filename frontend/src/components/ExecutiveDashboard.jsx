@@ -10,11 +10,31 @@ function ExecutiveDashboard({
   onOpenBroadcast,
   isCompact = false
 }) {
-  const revenue = analytics.totalRevenue || 11193.9;
-  const activeOrdersCount = analytics.activeOrders !== undefined ? analytics.activeOrders : 6;
-  const consentRate = analytics.consentRate || 86;
+  const revenue = analytics.totalRevenue || 0;
+  const activeOrdersCount = analytics.activeOrders !== undefined ? analytics.activeOrders : 0;
+  const consentRate = analytics.consentRate || (contacts.length > 0 ? Math.round((contacts.filter(c => c.consent).length / contacts.length) * 100) : 0);
   const openTickets = analytics.openTickets || 0;
-  const totalContactsCount = contacts.length || analytics.totalContacts || 7;
+  const totalContactsCount = contacts.length;
+
+  // Real repairs calculated dynamically from contacts
+  const allRepairs = (contacts || []).flatMap(c => c.repairs || []);
+  const repairStages = [
+    { stage: 'Received', count: allRepairs.filter(r => (r.status || '').toLowerCase() === 'received').length, color: 'bg-blue-100 text-blue-800 border-blue-200', dot: 'bg-blue-500' },
+    { stage: 'Diagnosing', count: allRepairs.filter(r => (r.status || '').toLowerCase() === 'diagnosing').length, color: 'bg-amber-100 text-amber-800 border-amber-200', dot: 'bg-amber-500' },
+    { stage: 'In Repair', count: allRepairs.filter(r => (r.status || '').toLowerCase() === 'in repair').length, color: 'bg-purple-100 text-purple-800 border-purple-200', dot: 'bg-purple-500' },
+    { stage: 'Testing QA', count: allRepairs.filter(r => ['testing', 'testing qa', 'qa'].includes((r.status || '').toLowerCase())).length, color: 'bg-indigo-100 text-indigo-800 border-indigo-200', dot: 'bg-indigo-500' },
+    { stage: 'Ready Pickup', count: allRepairs.filter(r => ['ready for pickup', 'ready pickup', 'ready'].includes((r.status || '').toLowerCase())).length, color: 'bg-emerald-100 text-emerald-800 border-emerald-200', dot: 'bg-emerald-500' }
+  ];
+
+  // Real orders calculated dynamically from contacts
+  const allOrders = (contacts || []).flatMap(c => c.orders || []);
+  const orderStages = [
+    { stage: 'Confirmed', count: allOrders.filter(o => (o.status || o.orderStatus || '').toLowerCase().includes('confirm')).length, color: 'bg-slate-100 text-slate-800 border-slate-200' },
+    { stage: 'Processing', count: allOrders.filter(o => (o.status || o.orderStatus || '').toLowerCase().includes('process')).length, color: 'bg-blue-50 text-blue-800 border-blue-200' },
+    { stage: 'Shipped', count: allOrders.filter(o => (o.status || o.orderStatus || '').toLowerCase().includes('ship')).length, color: 'bg-amber-50 text-amber-800 border-amber-200' },
+    { stage: 'Out Delivery', count: allOrders.filter(o => (o.status || o.orderStatus || '').toLowerCase().includes('delivery')).length, color: 'bg-purple-50 text-purple-800 border-purple-200' },
+    { stage: 'Delivered', count: allOrders.filter(o => (o.status || o.orderStatus || '').toLowerCase().includes('delivered')).length, color: 'bg-emerald-50 text-emerald-800 border-emerald-200' }
+  ];
 
   // Recent 4 active contacts with activity
   const recentContacts = contacts.slice(0, 4);
@@ -85,7 +105,7 @@ function ExecutiveDashboard({
               ₹{Number(revenue).toLocaleString('en-IN')}
             </div>
             <div className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
-              <span>↑ Verified Sales</span> · <span>Store & Delivery</span>
+              <span>{revenue > 0 ? 'Verified Sales' : 'No Sales Recorded'}</span> · <span>Store & Delivery</span>
             </div>
           </div>
         </div>
@@ -100,7 +120,7 @@ function ExecutiveDashboard({
               {activeOrdersCount}
             </div>
             <div className="text-[11px] text-teal-700 font-medium mt-1">
-              Live in Service Desk
+              {activeOrdersCount > 0 ? 'Live in Service Desk' : 'No active repairs or orders'}
             </div>
           </div>
         </div>
@@ -130,7 +150,7 @@ function ExecutiveDashboard({
               {openTickets}
             </div>
             <div className="text-[11px] text-emerald-700 font-medium mt-1 flex items-center gap-1">
-              <span>✓ 100% Resolved SLA</span>
+              <span>{openTickets === 0 ? '✓ 100% Resolved SLA' : `${openTickets} Pending Attention`}</span>
             </div>
           </div>
         </div>
@@ -156,13 +176,7 @@ function ExecutiveDashboard({
 
             {/* Stepper Progress */}
             <div className="grid grid-cols-5 gap-1.5 mt-4 text-center">
-              {[
-                { stage: 'Received', count: 1, color: 'bg-blue-100 text-blue-800 border-blue-200', dot: 'bg-blue-500' },
-                { stage: 'Diagnosing', count: 1, color: 'bg-amber-100 text-amber-800 border-amber-200', dot: 'bg-amber-500' },
-                { stage: 'In Repair', count: 2, color: 'bg-purple-100 text-purple-800 border-purple-200', dot: 'bg-purple-500' },
-                { stage: 'Testing QA', count: 1, color: 'bg-indigo-100 text-indigo-800 border-indigo-200', dot: 'bg-indigo-500' },
-                { stage: 'Ready Pickup', count: 1, color: 'bg-emerald-100 text-emerald-800 border-emerald-200', dot: 'bg-emerald-500' }
-              ].map((step, idx) => (
+              {repairStages.map((step, idx) => (
                 <div key={idx} className={`p-2 rounded-xl border ${step.color} flex flex-col items-center justify-between`}>
                   <div className={`w-2 h-2 rounded-full ${step.dot} mb-1`}></div>
                   <span className="text-base font-extrabold">{step.count}</span>
@@ -173,7 +187,9 @@ function ExecutiveDashboard({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">Next Pickup Slot: Today 4:00 PM – 5:00 PM</span>
+            <span className="text-slate-500 font-medium">
+              {allRepairs.length > 0 ? `${allRepairs.length} Total Registered Repairs` : 'No active repairs in pipeline'}
+            </span>
             {onNavigateTab && (
               <button 
                 onClick={() => onNavigateTab('orders')}
@@ -202,13 +218,7 @@ function ExecutiveDashboard({
 
             {/* Stepper Progress */}
             <div className="grid grid-cols-5 gap-1.5 mt-4 text-center">
-              {[
-                { stage: 'Confirmed', count: 1, color: 'bg-slate-100 text-slate-800 border-slate-200' },
-                { stage: 'Processing', count: 1, color: 'bg-blue-50 text-blue-800 border-blue-200' },
-                { stage: 'Shipped', count: 0, color: 'bg-amber-50 text-amber-800 border-amber-200' },
-                { stage: 'Out Delivery', count: 1, color: 'bg-purple-50 text-purple-800 border-purple-200' },
-                { stage: 'Delivered', count: 1, color: 'bg-emerald-50 text-emerald-800 border-emerald-200' }
-              ].map((step, idx) => (
+              {orderStages.map((step, idx) => (
                 <div key={idx} className={`p-2 rounded-xl border ${step.color} flex flex-col items-center justify-between`}>
                   <span className="text-base font-extrabold">{step.count}</span>
                   <span className="text-[10px] font-semibold tracking-tight mt-0.5 leading-tight">{step.stage}</span>
@@ -218,7 +228,9 @@ function ExecutiveDashboard({
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">Assigned Rider: Karthik Raja (+91 9361863063)</span>
+            <span className="text-slate-500 font-medium">
+              {allOrders.length > 0 ? `${allOrders.length} Total Customer Orders` : 'No active dispatches'}
+            </span>
             {onNavigateTab && (
               <button 
                 onClick={() => onNavigateTab('orders')}
@@ -253,48 +265,54 @@ function ExecutiveDashboard({
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-          {recentContacts.map(c => {
-            const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
-            return (
-              <div
-                key={c.phone}
-                onClick={() => onSelectContact && onSelectContact(c.phone)}
-                className="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal hover:shadow-sm transition-all cursor-pointer bg-slate-50/50 hover:bg-white flex flex-col justify-between group"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-wa-teal text-white font-bold text-xs flex items-center justify-center shrink-0">
-                        {c.name ? c.name.charAt(0).toUpperCase() : 'C'}
+        {recentContacts.length === 0 ? (
+          <div className="py-8 text-center text-slate-400 text-xs bg-slate-50/50 rounded-xl border border-dashed border-slate-200 mt-4">
+            No customer WhatsApp conversations recorded yet. Incoming messages will appear here automatically.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
+            {recentContacts.map(c => {
+              const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
+              return (
+                <div
+                  key={c.phone}
+                  onClick={() => onSelectContact && onSelectContact(c.phone)}
+                  className="p-3.5 rounded-xl border border-slate-200 hover:border-wa-teal hover:shadow-sm transition-all cursor-pointer bg-slate-50/50 hover:bg-white flex flex-col justify-between group"
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-wa-teal text-white font-bold text-xs flex items-center justify-center shrink-0">
+                          {c.name ? c.name.charAt(0).toUpperCase() : 'C'}
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-900 group-hover:text-wa-teal transition-colors">
+                            {c.name || c.phone}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 font-mono">+{c.phone}</span>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-wa-teal transition-colors">
-                          {c.name || c.phone}
-                        </h4>
-                        <span className="text-[10px] text-slate-400 font-mono">+{c.phone}</span>
-                      </div>
+                      <span className="text-[9px] font-semibold bg-slate-200/60 text-slate-600 px-1.5 py-0.5 rounded uppercase">
+                        {c.lead_status || 'Customer'}
+                      </span>
                     </div>
-                    <span className="text-[9px] font-semibold bg-slate-200/60 text-slate-600 px-1.5 py-0.5 rounded uppercase">
-                      {c.lead_status || 'Customer'}
-                    </span>
+
+                    <p className="text-xs text-slate-600 line-clamp-2 mt-2 bg-white p-2 rounded-lg border border-slate-100">
+                      {lastMsg ? lastMsg.text : 'No messages logged yet'}
+                    </p>
                   </div>
 
-                  <p className="text-xs text-slate-600 line-clamp-2 mt-2 bg-white p-2 rounded-lg border border-slate-100">
-                    {lastMsg ? lastMsg.text : 'No messages logged yet'}
-                  </p>
+                  <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+                    <span>{formatLastSeen(c.lastSeen)}</span>
+                    <span className="text-wa-teal font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                      Open Chat &rarr;
+                    </span>
+                  </div>
                 </div>
-
-                <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-                  <span>{formatLastSeen(c.lastSeen)}</span>
-                  <span className="text-wa-teal font-bold group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                    Open Chat &rarr;
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* 5. Quick Shortcut Station to Platform Pillars */}

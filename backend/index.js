@@ -550,6 +550,16 @@ async function getAdminStoreMetrics() {
             { $count: 'count' }
         ]);
 
+        let totalRevenue = 0;
+        let todaySales = 0;
+        try {
+            const revenueAgg = await Contact.aggregate([
+                { $unwind: '$orders' },
+                { $group: { _id: null, total: { $sum: '$orders.totalAmount' } } }
+            ]);
+            totalRevenue = revenueAgg[0] ? revenueAgg[0].total : 0;
+        } catch(e) {}
+
         return {
             totalContacts,
             optedInContacts,
@@ -558,21 +568,21 @@ async function getAdminStoreMetrics() {
             pendingPickups: pendingPickupsCount[0] ? pendingPickupsCount[0].count : 0,
             totalTradeins: tradeinsCount[0] ? tradeinsCount[0].count : 0,
             openTickets: openTicketsCount[0] ? openTicketsCount[0].count : 0,
-            totalRevenue: 48500,
-            todaySales: 8900
+            totalRevenue,
+            todaySales
         };
     } catch (e) {
         console.error('[Admin Metrics Error]:', e.message);
         return {
-            totalContacts: 45,
-            optedInContacts: 42,
-            activeRepairs: 4,
-            totalRepairs: 86,
-            pendingPickups: 2,
-            totalTradeins: 11,
-            openTickets: 1,
-            totalRevenue: 48500,
-            todaySales: 8900
+            totalContacts: 0,
+            optedInContacts: 0,
+            activeRepairs: 0,
+            totalRepairs: 0,
+            pendingPickups: 0,
+            totalTradeins: 0,
+            openTickets: 0,
+            totalRevenue: 0,
+            todaySales: 0
         };
     }
 }
@@ -2006,21 +2016,21 @@ app.get('/crm/analytics', async (req, res) => {
             pendingPickups: metrics.pendingPickups,
             totalTradeins: metrics.totalTradeins,
             openTickets: metrics.openTickets,
-            consentRate: metrics.totalContacts > 0 ? Math.round((metrics.optedInContacts / metrics.totalContacts) * 100) : 93,
+            consentRate: metrics.totalContacts > 0 ? Math.round((metrics.optedInContacts / metrics.totalContacts) * 100) : 0,
             botVsHuman: { bot: botCount, human: pausedCount }
         });
     } catch (err) {
         console.warn('⚠️ /crm/analytics fallback:', err.message);
         res.json({
-            totalContacts: 45,
-            totalRevenue: 48500,
-            todaySales: 8900,
-            activeOrders: 4,
-            pendingPickups: 2,
-            totalTradeins: 11,
-            openTickets: 1,
-            consentRate: 93,
-            botVsHuman: { bot: 40, human: 5 }
+            totalContacts: 0,
+            totalRevenue: 0,
+            todaySales: 0,
+            activeOrders: 0,
+            pendingPickups: 0,
+            totalTradeins: 0,
+            openTickets: 0,
+            consentRate: 0,
+            botVsHuman: { bot: 0, human: 0 }
         });
     }
 });
