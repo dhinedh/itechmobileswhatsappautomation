@@ -88,14 +88,150 @@ const ENDPOINTS = [
       userName: 'Ramesh Babu',
       templateParams: [
         'ORD-1001',
-        'Apple iPhone 15 Pro',
-        'Dispatched via Express Rider',
+        'Apple iPhone 15',
+        'Dispatched',
         'TRACK-12345'
       ],
       media: {
         url: 'https://whatapp-automation-kxml.onrender.com/invoice.pdf',
         filename: 'invoice.pdf'
       }
+    }
+  },
+  {
+    id: 'aisensy-repair-status',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Repair Status Update',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Notifies customer whenever their repair changes state in your CRM (Diagnosing, In Repair, Testing).',
+    templateName: 'repair_status_update',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'repair_status_update' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[JobId, DeviceModel, StatusDescription]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'repair_status_update',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'REP-1042',
+        'Apple iPhone 13',
+        'In Repair - Micro-Soldering in Progress'
+      ]
+    }
+  },
+  {
+    id: 'aisensy-service-quotation',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Service Quotation',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Dispatches diagnostic repair cost estimation to customer for instant WhatsApp approval.',
+    templateName: 'service_quotation',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'service_quotation' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[JobId, DeviceModel, IssueDescription, QuotedCost]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'service_quotation',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'REP-1042',
+        'Apple iPhone 13',
+        'Cracked OLED Display',
+        '4500'
+      ]
+    }
+  },
+  {
+    id: 'aisensy-payment-confirmation',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Payment Completed',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Instant receipt notification whenever invoice billing or payment settlement is completed.',
+    templateName: 'payment_confirmation',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'payment_confirmation' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[BillNo, AmountPaid, PaymentMode]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'payment_confirmation',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'INV-2026-908',
+        '4500',
+        'UPI / GPay'
+      ]
+    }
+  },
+  {
+    id: 'aisensy-warranty-confirmation',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Warranty Notification',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Sends digital parts & service warranty certificate valid for 90 days directly to WhatsApp.',
+    templateName: 'warranty_confirmation',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'warranty_confirmation' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[JobId, DeviceModel, WarrantyPeriod]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'warranty_confirmation',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'REP-1042',
+        'Apple iPhone 13',
+        '90 Days (OEM Screen)'
+      ]
+    }
+  },
+  {
+    id: 'aisensy-doorstep-pickup',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Doorstep Pickup Scheduled',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Dispatches technician visit or doorstep pickup schedule confirmation to customer WhatsApp.',
+    templateName: 'doorstep_pickup_confirmation',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'doorstep_pickup_confirmation' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[BookingId, DateTimeSlot, Address]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'doorstep_pickup_confirmation',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'PICKUP-502',
+        'Today, 4:00 PM - 5:00 PM',
+        'TV Malai Road, Tirukannur, Pondicherry'
+      ]
     }
   },
   // 1. CRM Workflows
@@ -351,6 +487,9 @@ function ApiDocsHub({ apiUrl }) {
     const payload = ep.samplePayload;
 
     if (lang === 'curl') {
+      if (ep.category === 'aisensy') {
+        return `curl --location '${fullUrl}' \\\n--header 'Content-Type: application/json' \\\n--data-raw '${JSON.stringify(payload, null, 2)}'`;
+      }
       if (ep.method === 'GET') {
         return `curl -X GET "${fullUrl}" \\\n  -H "x-api-key: ${apiKey}"`;
       }
@@ -358,6 +497,25 @@ function ApiDocsHub({ apiUrl }) {
     }
 
     if (lang === 'node') {
+      if (ep.category === 'aisensy') {
+        return `const axios = require('axios');
+
+async function sendAiSensyNotification() {
+  const payload = ${JSON.stringify(payload, null, 2)};
+
+  try {
+    const response = await axios.post('${fullUrl}', payload, {
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 15000
+    });
+    console.log('Success:', response.data);
+  } catch (error) {
+    console.error('API Error:', error.response?.data || error.message);
+  }
+}
+
+sendAiSensyNotification();`;
+      }
       if (ep.method === 'GET') {
         return `const axios = require('axios');
 
@@ -389,6 +547,16 @@ sendWhatsAppNotification();`;
     }
 
     if (lang === 'python') {
+      if (ep.category === 'aisensy') {
+        return `import requests
+
+url = "${fullUrl}"
+headers = {"Content-Type": "application/json"}
+payload = ${JSON.stringify(payload, null, 4)}
+
+response = requests.post(url, json=payload, headers=headers, timeout=15)
+print(response.status_code, response.json())`;
+      }
       if (ep.method === 'GET') {
         return `import requests
 
@@ -412,6 +580,21 @@ print(response.status_code, response.json())`;
     }
 
     if (lang === 'php') {
+      if (ep.category === 'aisensy') {
+        return `<?php
+$payload = json_encode(${JSON.stringify(payload, null, 2)});
+
+$ch = curl_init('${fullUrl}');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+?>`;
+      }
       if (ep.method === 'GET') {
         return `<?php
 $ch = curl_init('${fullUrl}');
