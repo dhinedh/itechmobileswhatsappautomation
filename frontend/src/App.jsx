@@ -11,6 +11,7 @@ import TemplatesHub from './components/TemplatesHub';
 import TemplateCreator from './components/TemplateCreator';
 import ApiDocsHub from './components/ApiDocsHub';
 import CustomerSidebar from './components/CustomerSidebar';
+import ExecutiveDashboard from './components/ExecutiveDashboard';
 import { isToday } from './utils/formatters';
 
 function App() {
@@ -50,7 +51,7 @@ function App() {
   const [broadcastMsg, setBroadcastMsg] = useState('');
   const [broadcastSegment, setBroadcastSegment] = useState('opt_in');
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
-  const [activeTab, setActiveTab] = useState('crm'); // 'crm' | 'templates' | 'creator' | 'apidocs'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'crm' | 'templates' | 'creator' | 'apidocs'
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Fetch all contacts
@@ -427,6 +428,22 @@ function App() {
         </div>
       )}
       
+      {activeTab === 'dashboard' && (
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 max-w-7xl mx-auto w-full">
+          <ExecutiveDashboard 
+            analytics={analytics}
+            contacts={contacts}
+            onSelectContact={(phone) => {
+              setActiveTab('crm');
+              fetchContactDetail(phone);
+            }}
+            onNavigateTab={setActiveTab}
+            onOpenBroadcast={() => setShowBroadcast(true)}
+            isCompact={false}
+          />
+        </main>
+      )}
+
       {activeTab === 'crm' && (
         <>
           <StatsRow stats={stats} />
@@ -444,6 +461,11 @@ function App() {
               contact={activeContactDetail} 
               loading={detailLoading}
               apiUrl={API_URL}
+              analytics={analytics}
+              contacts={contacts}
+              onSelectContact={fetchContactDetail}
+              onNavigateTab={setActiveTab}
+              onOpenBroadcast={() => setShowBroadcast(true)}
               onDelete={deleteContact}
               onToggleBot={handleToggleBot}
               onResolveTicket={handleResolveTicket}

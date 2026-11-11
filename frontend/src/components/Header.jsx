@@ -11,6 +11,7 @@ function Header({
   dpSyncing
 }) {
   const navTabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'crm', label: 'CRM & Chats', icon: '💬' },
     { id: 'leads', label: 'Sales Leads', icon: '🎯' },
     { id: 'orders', label: 'Orders & Tracking', icon: '📦' },

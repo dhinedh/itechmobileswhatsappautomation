@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { formatDate, formatTime, formatLastSeen } from '../utils/formatters';
 import logoImg from '../assets/logo.png';
+import ExecutiveDashboard from './ExecutiveDashboard';
 
 const CANNED_RESPONSES = [
   { label: '📍 Store Location', text: '📍 iTechnic Mobiles Service Center: TV Malai Road, Tirukannur, Pondicherry - 605501. Near Bus Stop.' },
@@ -86,6 +87,11 @@ const TEMPLATE_OPTIONS = [
 function ContactDetail({ 
   contact, 
   apiUrl,
+  analytics,
+  contacts,
+  onSelectContact,
+  onNavigateTab,
+  onOpenBroadcast,
   onDelete, 
   onToggleBot, 
   onResolveTicket, 
@@ -218,10 +224,15 @@ function ContactDetail({
 
   if (!contact) {
     return (
-      <div className="flex-1 bg-gray-50 rounded-xl flex flex-col items-center justify-center border border-gray-100 h-[600px] md:h-auto text-gray-400 text-center p-6 z-10">
-        <img src={logoImg} alt="iTechnic Mobiles Logo" className="w-20 h-20 mb-4 rounded-full bg-white object-contain p-2 shadow-md animate-pulse" />
-        <h2 className="text-xl font-bold mb-2 text-gray-700">No Customer Selected</h2>
-        <p className="text-sm max-w-xs text-gray-400">Click on a contact from the list to manage their chat, repairs, doorstep pickups, and support tickets.</p>
+      <div className="flex-1 bg-white rounded-xl flex flex-col relative shadow-sm border border-gray-100 h-[600px] md:h-auto overflow-hidden z-10">
+        <ExecutiveDashboard
+          analytics={analytics}
+          contacts={contacts}
+          onSelectContact={onSelectContact}
+          onNavigateTab={onNavigateTab}
+          onOpenBroadcast={onOpenBroadcast}
+          isCompact={true}
+        />
       </div>
     );
   }
