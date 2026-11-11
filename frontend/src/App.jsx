@@ -3,6 +3,10 @@ import Header from './components/Header';
 import StatsRow from './components/StatsRow';
 import ContactList from './components/ContactList';
 import ContactDetail from './components/ContactDetail';
+import LeadsHub from './components/LeadsHub';
+import OrdersHub from './components/OrdersHub';
+import CatalogHub from './components/CatalogHub';
+import AgentsHub from './components/AgentsHub';
 import TemplatesHub from './components/TemplatesHub';
 import TemplateCreator from './components/TemplateCreator';
 import ApiDocsHub from './components/ApiDocsHub';
@@ -10,7 +14,19 @@ import CustomerSidebar from './components/CustomerSidebar';
 import { isToday } from './utils/formatters';
 
 function App() {
-  const API_URL = import.meta.env.VITE_API_URL || '';
+  // Dynamically resolve API URL: if on Vercel/production but envUrl is localhost, use production backend
+  const API_URL = useMemo(() => {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (typeof window !== 'undefined') {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocalhost && (!envUrl || envUrl.includes('localhost:3000'))) {
+        return 'https://whatapp-automation-kxml.onrender.com';
+      }
+    }
+    return envUrl || '';
+  }, []);
+
+  const [connectionError, setConnectionError] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [currentPhone, setCurrentPhone] = useState(null);
   const [activeContactDetail, setActiveContactDetail] = useState(null);
@@ -37,13 +53,19 @@ function App() {
   const fetchContacts = async () => {
     try {
       const res = await fetch(`${API_URL}/crm`);
-      if (!res.ok) throw new Error('Failed to fetch CRM data');
+      if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch CRM data`);
       const data = await res.json();
       
-      const sortedContacts = data.contacts.sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
+      const sortedContacts = (data.contacts || []).sort((a, b) => new Date(b.lastSeen) - new Date(a.lastSeen));
       setContacts(sortedContacts);
+      setConnectionError(null);
     } catch (error) {
       console.error("Error fetching contacts:", error);
+      const isConnRefused = error.message?.includes('Failed to fetch') || error.name === 'TypeError';
+      if (isConnRefused) {
+        const targetHost = API_URL || 'backend server';
+        setConnectionError(`Could not connect to ${targetHost}. Please ensure the backend is running.`);
+      }
     }
   };
 
@@ -54,6 +76,7 @@ function App() {
       if (res.ok) {
         const data = await res.json();
         setAnalytics(data);
+        setConnectionError(null);
       }
     } catch (error) {
       console.error("Error fetching analytics:", error);
@@ -361,6 +384,26 @@ function App() {
         onUpdateDp={handleUpdateDp}
         dpSyncing={dpSyncing}
       />
+
+      {connectionError && (
+        <div className="bg-rose-500/15 border-b border-rose-500/30 px-5 py-2.5 text-xs text-rose-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-base">⚠️</span>
+            <span>
+              <strong>Server Unreachable:</strong> {connectionError}
+            </span>
+            <span className="hidden md:inline text-rose-300/80">
+              Run: <code className="bg-black/40 px-2 py-0.5 rounded text-rose-100 font-mono">cd backend; npm start</code>
+            </span>
+          </div>
+          <button 
+            onClick={() => { fetchContacts(); fetchAnalytics(); }}
+            className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1 rounded text-xs transition-colors shrink-0 shadow-sm"
+          >
+            ↻ Retry Connection
+          </button>
+        </div>
+      )}
       
       {activeTab === 'crm' && (
         <>
@@ -406,6 +449,22 @@ function App() {
             )}
           </main>
         </>
+      )}
+
+      {activeTab === 'leads' && (
+        <LeadsHub apiUrl={API_URL} />
+      )}
+
+      {activeTab === 'orders' && (
+        <OrdersHub apiUrl={API_URL} />
+      )}
+
+      {activeTab === 'catalog' && (
+        <CatalogHub apiUrl={API_URL} />
+      )}
+
+      {activeTab === 'agents' && (
+        <AgentsHub apiUrl={API_URL} />
       )}
 
       {activeTab === 'templates' && (

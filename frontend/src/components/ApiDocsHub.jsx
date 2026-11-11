@@ -447,25 +447,72 @@ echo $response;
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <div className="max-w-7xl mx-auto mt-6 flex items-center gap-2 border-t border-white/10 pt-4 overflow-x-auto">
-          {API_CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => {
-                setActiveCategory(cat.id);
-                const first = ENDPOINTS.find(e => e.category === cat.id);
-                if (first) handleSelectEndpoint(first);
-              }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                activeCategory === cat.id
-                  ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
-                  : 'bg-white/5 hover:bg-white/15 text-slate-200'
-              }`}
+        {/* Action Toolbar: Category Tabs & Document Downloads */}
+        <div className="max-w-7xl mx-auto mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-white/10 pt-4">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            {API_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setActiveCategory(cat.id);
+                  const first = ENDPOINTS.find(e => e.category === cat.id);
+                  if (first) handleSelectEndpoint(first);
+                }}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                  activeCategory === cat.id
+                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
+                    : 'bg-white/5 hover:bg-white/15 text-slate-200'
+                }`}
+              >
+                <span>{cat.icon}</span> {cat.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Download Developer Integration Document */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href={`${currentBaseUrl}/api/v1/docs/download?format=pdf`}
+              download="iTechnic_ERP_WhatsApp_API_Integration_Guide.pdf"
+              className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+              title="Download Ready-to-Print Official ERP Integration PDF Manual"
             >
-              <span>{cat.icon}</span> {cat.name}
-            </button>
-          ))}
+              <span>📑</span> Download PDF Manual
+            </a>
+            <a
+              href={`${currentBaseUrl}/api/v1/docs/download?format=html`}
+              download="PRODUCTION_DEVELOPER_INTEGRATION_GUIDE.html"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-lg border border-white/20 transition-all flex items-center gap-1.5"
+              title="Download HTML manual with live interactive testing"
+            >
+              <span>🌐</span> HTML Manual
+            </a>
+            <a
+              href={`${currentBaseUrl}/api/v1/docs/download?format=md`}
+              download="PRODUCTION_DEVELOPER_INTEGRATION_GUIDE.md"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-lg border border-white/20 transition-all flex items-center gap-1.5"
+              title="Download Markdown Documentation"
+            >
+              <span>📄</span> Markdown (.md)
+            </a>
+            <a
+              href={`${currentBaseUrl}/itechnic-whatsapp-postman-collection.json`}
+              download="itechnic-whatsapp-postman.json"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-lg border border-white/20 transition-all flex items-center gap-1.5"
+              title="Download Postman Collection"
+            >
+              <span>📮</span> Postman
+            </a>
+            <a
+              href={`${currentBaseUrl}/developer-docs.html`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-teal-300 hover:text-white font-semibold text-xs rounded-lg border border-teal-500/30 transition-all flex items-center gap-1.5"
+              title="Open full interactive manual in a new tab"
+            >
+              <span>↗</span> Open Manual
+            </a>
+          </div>
         </div>
       </div>
 

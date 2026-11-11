@@ -1,0 +1,319 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "iTechnic Mobiles WhatsApp Business API & CRM Gateway",
+    "version": "1.0.0",
+    "description": "Production REST API for external CRM, ERP, and billing systems to trigger Meta WhatsApp Cloud API v20.0 message templates, status updates, and track repair jobs.",
+    "contact": {
+      "name": "iTechnic Mobiles Developer Support",
+      "email": "itechnicmobiles2@gmail.com",
+      "url": "https://itechnicmobiles.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://whatapp-automation-kxml.onrender.com/api/v1",
+      "description": "Production Cloud Server"
+    },
+    {
+      "url": "http://localhost:3000/api/v1",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Production secret API key: itech_live_sec_7f9984e1b9384e9d9a1f"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer token authentication fallback"
+      }
+    },
+    "schemas": {
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "message": { "type": "string" },
+          "data": { "type": "object" },
+          "error": { "type": "string" }
+        }
+      },
+      "RepairBookingRequest": {
+        "type": "object",
+        "required": ["phone", "customerName", "jobId", "device", "service"],
+        "properties": {
+          "phone": { "type": "string", "example": "919342400879" },
+          "customerName": { "type": "string", "example": "Murali" },
+          "jobId": { "type": "string", "example": "REP-1024" },
+          "device": { "type": "string", "example": "Apple iPhone 13" },
+          "service": { "type": "string", "example": "Screen Replacement" },
+          "turnaround": { "type": "string", "example": "Same Day (60 mins)" }
+        }
+      },
+      "RepairStatusUpdateRequest": {
+        "type": "object",
+        "required": ["phone", "customerName", "jobId", "device", "status"],
+        "properties": {
+          "phone": { "type": "string", "example": "919342400879" },
+          "customerName": { "type": "string", "example": "Murali" },
+          "jobId": { "type": "string", "example": "REP-1024" },
+          "device": { "type": "string", "example": "Apple iPhone 13" },
+          "status": { "type": "string", "example": "In Repair (Technician diagnosing display panel)" }
+        }
+      },
+      "DeviceReadyPickupRequest": {
+        "type": "object",
+        "required": ["phone", "customerName", "device", "jobId", "totalAmount"],
+        "properties": {
+          "phone": { "type": "string", "example": "919342400879" },
+          "customerName": { "type": "string", "example": "Murali" },
+          "device": { "type": "string", "example": "Apple iPhone 13" },
+          "jobId": { "type": "string", "example": "REP-1024" },
+          "totalAmount": { "type": "string", "example": "3500" }
+        }
+      },
+      "DoorstepPickupRequest": {
+        "type": "object",
+        "required": ["phone", "customerName", "requestId", "device", "slot", "address"],
+        "properties": {
+          "phone": { "type": "string", "example": "919342400879" },
+          "customerName": { "type": "string", "example": "Murali" },
+          "requestId": { "type": "string", "example": "PU-502" },
+          "device": { "type": "string", "example": "OnePlus 11" },
+          "slot": { "type": "string", "example": "Today, 3:00 PM – 5:00 PM" },
+          "address": { "type": "string", "example": "No. 12, Main Road, Pondicherry" }
+        }
+      },
+      "ServiceQuotationRequest": {
+        "type": "object",
+        "required": ["phone", "customerName", "device", "jobId", "issue", "quotedCost"],
+        "properties": {
+          "phone": { "type": "string", "example": "919342400879" },
+          "customerName": { "type": "string", "example": "Murali" },
+          "device": { "type": "string", "example": "Samsung Galaxy S21" },
+          "jobId": { "type": "string", "example": "REP-1024" },
+          "issue": { "type": "string", "example": "Display Touch Panel Replacement" },
+          "quotedCost": { "type": "string", "example": "4500" }
+        }
+      },
+      "AdminAlertRequest": {
+        "type": "object",
+        "required": ["customerName", "customerPhone", "device", "service", "id"],
+        "properties": {
+          "customerName": { "type": "string", "example": "Karthik Raja" },
+          "customerPhone": { "type": "string", "example": "919876543210" },
+          "device": { "type": "string", "example": "iPhone 14 Pro Max" },
+          "service": { "type": "string", "example": "Water Damage Recovery" },
+          "id": { "type": "string", "example": "REP-8492" },
+          "phone": { "type": "string", "example": "919342400879", "description": "Admin WhatsApp number (optional)" }
+        }
+      },
+      "SendTemplateRequest": {
+        "type": "object",
+        "required": ["to", "templateName"],
+        "properties": {
+          "to": { "type": "string", "example": "919342400879" },
+          "templateName": { "type": "string", "example": "repair_booking_confirmed" },
+          "languageCode": { "type": "string", "example": "en_US", "default": "en_US" },
+          "bodyVariables": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["Murali", "REP-1024", "Apple iPhone 13", "Screen Replacement", "Same Day"]
+          }
+        }
+      },
+      "SendTextRequest": {
+        "type": "object",
+        "required": ["to", "text"],
+        "properties": {
+          "to": { "type": "string", "example": "919342400879" },
+          "text": { "type": "string", "example": "Hello from iTechnic Mobiles! Your phone is ready." }
+        }
+      }
+    }
+  },
+  "security": [
+    { "ApiKeyAuth": [] },
+    { "BearerAuth": [] }
+  ],
+  "paths": {
+    "/auth/key": {
+      "get": {
+        "summary": "Check API Auth & System Config",
+        "description": "Returns current active API Key, WABA ID, and Base URL.",
+        "responses": {
+          "200": {
+            "description": "Successful check",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "apiKey": { "type": "string" },
+                    "wabaId": { "type": "string" },
+                    "phoneNumberId": { "type": "string" },
+                    "baseUrl": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/repair-booking-confirmed": {
+      "post": {
+        "summary": "Dispatch Repair Booking Confirmation",
+        "description": "Sends instant WhatsApp confirmation message with Job ID, device name, and estimated turnaround time.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RepairBookingRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "WhatsApp notification dispatched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } },
+          "400": { "description": "Missing parameters" },
+          "401": { "description": "Unauthorized API key" }
+        }
+      }
+    },
+    "/crm/repair-status-update": {
+      "post": {
+        "summary": "Dispatch Repair Status Update",
+        "description": "Notifies customer whenever their repair changes state in your CRM (e.g. Diagnosing, In Repair, Testing).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RepairStatusUpdateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Status update sent", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/crm/device-ready-pickup": {
+      "post": {
+        "summary": "Alert Customer Device is Ready for Store Collection",
+        "description": "Sends bill amount and store collection notification once repair passes testing.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DeviceReadyPickupRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Notification dispatched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/crm/doorstep-pickup": {
+      "post": {
+        "summary": "Confirm Doorstep Device Pickup",
+        "description": "Sends executive appointment slot, request ID, and address confirmation to customer.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DoorstepPickupRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Pickup confirmation sent", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/crm/service-quotation": {
+      "post": {
+        "summary": "Send Diagnostic Cost Quotation",
+        "description": "Sends formal diagnostic report and quote to customer for approval on WhatsApp.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ServiceQuotationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Quotation sent", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/crm/admin-alert": {
+      "post": {
+        "summary": "Send Immediate Admin Alert",
+        "description": "Alerts store managers and technician WhatsApp numbers when a new service request is submitted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/AdminAlertRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Alert sent to admin WhatsApp", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/messages/send-template": {
+      "post": {
+        "summary": "Universal Template Message Dispatcher",
+        "description": "Sends any pre-approved Meta WhatsApp template by name with positional variable replacement.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SendTemplateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Template dispatched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/messages/send-text": {
+      "post": {
+        "summary": "Send Direct WhatsApp Text Message",
+        "description": "Sends direct text within active 24-hour customer service window.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SendTextRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Message dispatched", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiResponse" } } } }
+        }
+      }
+    },
+    "/templates": {
+      "get": {
+        "summary": "List All Templates from Meta",
+        "description": "Fetches live list of templates with their approval status from Meta WABA.",
+        "responses": {
+          "200": { "description": "Templates fetched successfully" }
+        }
+      }
+    }
+  }
+}

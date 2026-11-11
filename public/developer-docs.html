@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iTechnic Mobiles WhatsApp Business API - Production Integration Documentation</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --primary-light: #ccfbf1;
+      --wa-green: #25d366;
+      --wa-teal: #075e54;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+      --code-bg: #0b1120;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--slate-50);
+      color: var(--slate-800);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Action Bar */
+    .top-bar {
+      background: linear-gradient(135deg, #075e54, #0f766e, #134e4a);
+      color: white;
+      padding: 1.25rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .top-bar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      background: white;
+      border-radius: 50%;
+      padding: 2px;
+      object-fit: contain;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-live {
+      background: rgba(37, 211, 102, 0.25);
+      color: #6ee7b7;
+      border: 1px solid rgba(37, 211, 102, 0.4);
+      padding: 0.15rem 0.55rem;
+      font-size: 0.72rem;
+      font-family: monospace;
+      border-radius: 9999px;
+    }
+
+    .brand-sub {
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+
+    /* Action Buttons */
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 0.95rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: 1px solid transparent;
+    }
+
+    .btn-pdf {
+      background: #25d366;
+      color: #064e3b;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .btn-pdf:hover {
+      background: #22c55e;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      border-color: rgba(255,255,255,0.25);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.22);
+    }
+
+    /* Main Container with Sidebar & Content */
+    .layout-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex: 1;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    /* Left Nav / Table of Contents */
+    .sidebar {
+      width: 290px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 6rem;
+      max-height: calc(100vh - 8rem);
+      overflow-y: auto;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .sidebar h4 {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--slate-600);
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+
+    .nav-list {
+      list-style: none;
+    }
+
+    .nav-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .nav-list a {
+      display: block;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.83rem;
+      color: var(--slate-700);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-list a:hover {
+      background: var(--slate-100);
+      color: var(--primary);
+    }
+
+    .nav-list a.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .doc-section {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.25rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--slate-900);
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.6rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin: 1.5rem 0 0.6rem 0;
+      color: var(--slate-800);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--slate-700);
+      font-size: 0.93rem;
+    }
+
+    /* Endpoint Card */
+    .endpoint-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      background: #fafafa;
+    }
+
+    .endpoint-header {
+      padding: 0.85rem 1.25rem;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .endpoint-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-method {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      font-family: monospace;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-post { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .badge-get { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+    .badge-delete { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .endpoint-path {
+      font-family: monospace;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+
+    .badge-template {
+      background: #f0fdfa;
+      color: #0f766e;
+      border: 1px solid #ccfbf1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-family: monospace;
+    }
+
+    .endpoint-body {
+      padding: 1.25rem;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      margin: 1rem 0;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    th, td {
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Code Blocks */
+    pre {
+      background: var(--code-bg);
+      color: #38bdf8;
+      padding: 1.15rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      line-height: 1.5;
+      margin: 0.75rem 0 1.25rem 0;
+      position: relative;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* Copy Button inside Code Block */
+    .code-container {
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      padding: 0.25rem 0.55rem;
+      font-size: 0.72rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* Alert Boxes */
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .alert-info {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      color: #1e40af;
+    }
+
+    .alert-success {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      color: #15803d;
+    }
+
+    .alert-warning {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      color: #92400e;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--slate-900);
+      color: #94a3b8;
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.82rem;
+      margin-top: auto;
+      border-top: 1px solid #334155;
+    }
+
+    /* Print Styles (For Clean PDF Export) */
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .top-bar, .sidebar, .copy-btn, .action-group {
+        display: none !important;
+      }
+      .layout-container {
+        padding: 0;
+        margin: 0;
+        display: block;
+      }
+      .content {
+        width: 100%;
+      }
+      .doc-section {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 2rem;
+        page-break-inside: avoid;
+      }
+      pre {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1;
+      }
+      table {
+        border-color: #cbd5e1;
+      }
+      th {
+        background: #f1f5f9;
+        color: black;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout-container {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      .sidebar {
+        width: 100%;
+        position: static;
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Action Bar -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand-group">
+        <img src="/logo.png" alt="iTechnic Mobiles" class="brand-logo" onerror="this.src='/itechnic_logo.png'">
+        <div>
+          <div class="brand-title">
+            iTechnic Mobiles WhatsApp Platform
+            <span class="badge-live">v1.0.0 Production</span>
+          </div>
+          <div class="brand-sub">Official Developer Integration Manual & REST API Reference</div>
+        </div>
+      </div>
+
+      <div class="action-group">
+        <button onclick="window.print()" class="btn btn-pdf" title="Generate or save this entire manual as PDF">
+          🖨️ Download as PDF / Print
+        </button>
+        <button onclick="downloadMarkdown()" class="btn btn-outline" title="Download standard markdown file">
+          📄 Download Markdown (.md)
+        </button>
+        <a href="/itechnic-whatsapp-postman-collection.json" download="itechnic-whatsapp-postman.json" class="btn btn-outline" title="Download Postman Collection">
+          📮 Postman Collection
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout-container">
+    
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <h4>Documentation Sections</h4>
+      <ul class="nav-list">
+        <li><a href="#overview">1. Architecture & Overview</a></li>
+        <li><a href="#credentials">2. Credentials & Auth</a></li>
+        <li><a href="#quickstart">3. 5-Minute Quickstart</a></li>
+        <li><a href="#crm-endpoints">4. CRM Automation Endpoints</a></li>
+        <li><a href="#repair-confirmed" style="padding-left:1.5rem;font-size:0.78rem;">↳ Booking Confirmed</a></li>
+        <li><a href="#status-update" style="padding-left:1.5rem;font-size:0.78rem;">↳ Status Update</a></li>
+        <li><a href="#ready-pickup" style="padding-left:1.5rem;font-size:0.78rem;">↳ Ready for Pickup</a></li>
+        <li><a href="#doorstep-pickup" style="padding-left:1.5rem;font-size:0.78rem;">↳ Doorstep Pickup</a></li>
+        <li><a href="#service-quote" style="padding-left:1.5rem;font-size:0.78rem;">↳ Service Quotation</a></li>
+        <li><a href="#admin-alert" style="padding-left:1.5rem;font-size:0.78rem;">↳ Admin Alert</a></li>
+        <li><a href="#universal-api">5. Universal Messaging API</a></li>
+        <li><a href="#templates-api">6. Meta Templates API</a></li>
+        <li><a href="#webhooks">7. Webhook & Inbound Events</a></li>
+        <li><a href="#code-samples">8. Code Samples (Node/Py/PHP)</a></li>
+        <li><a href="#errors">9. Error Codes & Rate Limits</a></li>
+      </ul>
+
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.78rem; color: var(--slate-600);">
+        <div><strong>Production URL:</strong></div>
+        <code style="word-break: break-all; font-size: 0.72rem;">https://whatapp-automation-kxml.onrender.com</code>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="content">
+
+      <!-- Section 1: Overview -->
+      <section id="overview" class="doc-section">
+        <h2>⚡ 1. Overview & Architecture</h2>
+        <p>
+          The <strong>iTechnic Mobiles WhatsApp Platform</strong> provides high-performance REST APIs allowing external CRMs, ERPs, billing software, and custom mobile apps to trigger automated WhatsApp customer notifications, status changes, quotation approvals, and digital warranties.
+        </p>
+
+        <div class="alert alert-info">
+          <div>
+            <strong>Meta WhatsApp Cloud API v20.0:</strong> All outbound messages are powered by official Meta infrastructure under WABA ID <code>1758570912097342</code>. Templates are pre-approved by Meta for instant delivery.
+          </div>
+        </div>
+
+        <div class="code-container">
+          <pre><code>[Your Enterprise CRM / ERP] 
+         │  HTTPS REST API (Header: x-api-key)
+         ▼
+[iTechnic WhatsApp Middleware Gateway]
+         │  Template Mapper & Component Builder
+         ▼
+[Meta WhatsApp Cloud API v20.0]
+         │  Official Direct Delivery
+         ▼
+[Customer WhatsApp App (Verified Business Profile)]</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 2: Credentials & Auth -->
+      <section id="credentials" class="doc-section">
+        <h2>🔑 2. Production Environment & Authentication</h2>
+        <p>All calls to <code>/api/v1/*</code> require authorization using your API Secret Key.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Base URL</strong></td>
+              <td><code>https://whatapp-automation-kxml.onrender.com</code></td>
+            </tr>
+            <tr>
+              <td><strong>API Version Root</strong></td>
+              <td><code>https://whatapp-automation-kxml.onrender.com/api/v1</code></td>
+            </tr>
+            <tr>
+              <td><strong>Production API Key</strong></td>
+              <td><code>itech_live_sec_7f9984e1b9384e9d9a1f</code></td>
+            </tr>
+            <tr>
+              <td><strong>Header Name</strong></td>
+              <td><code>x-api-key</code> or <code>Authorization: Bearer &lt;key&gt;</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+          <div>
+            <strong>Security Reminder:</strong> Store the API Key exclusively on your secure backend server. Never expose this key in public client-side browser files or public repositories.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Quick Start -->
+      <section id="quickstart" class="doc-section">
+        <h2>🚀 3. Quick Start: Verify Setup</h2>
+        <p>Run this simple cURL request to verify that your connection to the gateway is working:</p>
+
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet(this)">Copy</button>
+          <pre><code>curl -X GET "https://whatapp-automation-kxml.onrender.com/api/v1/auth/key" \
+  -H "x-api-key: itech_live_sec_7f9984e1b9384e9d9a1f"</code></pre>
+        </div>
+
+        <p><strong>Response (200 OK):</strong></p>
+        <div class="code-container">
+          <pre><code>{
+  "success": true,
+  "apiKey": "itech_live_sec_7f9984e1b9384e9d9a1f",
+  "wabaId": "1758570912097342",
+  "phoneNumberId": "100293847291029",
+  "baseUrl": "https://whatapp-automation-kxml.onrender.com/api/v1"
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 4: CRM Endpoints -->
+      <section id="crm-endpoints" class="doc-section">
+        <h2>🏢 4. CRM Automated Workflow Endpoints</h2>
+        <p>
+          These endpoints accept simplified JSON parameters and automatically map them to the corresponding Meta-approved template components.
+        </p>
+
+        <!-- 4.1 Repair Booking -->
+        <div id="repair-confirmed" class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/crm/repair-booking-confirmed</span>
+              <span class="badge-template">Template: repair_booking_confirmed</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Dispatches an instant booking confirmation to the customer with their unique Job ID and estimated turnaround time.</p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>phone</code></td>
+                  <td>string</td>
+                  <td><span style="color:#dc2626;font-weight:700;">Required</span></td>
+                  <td>10-digit number or with 91 country code (e.g. <code>919342400879</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>customerName</code></td>
+                  <td>string</td>
+                  <td><span style="color:#dc2626;font-weight:700;">Required</span></td>
+                  <td>Customer's first or full name (e.g. <code>Murali</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>jobId</code></td>
+                  <td>string</td>
+                  <td><span style="color:#dc2626;font-weight:700;">Required</span></td>
+                  <td>Job/Ticket ID (e.g. <code>REP-1024</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>device</code></td>
+                  <td>string</td>
+                  <td><span style="color:#dc2626;font-weight:700;">Required</span></td>
+                  <td>Device name (e.g. <code>Apple iPhone 13</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>service</code></td>
+                  <td>string</td>
+                  <td><span style="color:#dc2626;font-weight:700;">Required</span></td>
+                  <td>Service name (e.g. <code>Screen Replacement</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>turnaround</code></td>
+                  <td>string</td>
+                  <td>Optional</td>
+                  <td>Turnaround time (defaults to <code>Same Day</code>)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="code-container">
+              <button class="copy-btn" onclick="copySnippet(this)">Copy JSON</button>
+              <pre><code>{
+  "phone": "919342400879",
+  "customerName": "Murali",
+  "jobId": "REP-1024",
+  "device": "Apple iPhone 13",
+  "service": "Screen Replacement",
+  "turnaround": "Same Day (60 mins)"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.2 Status Update -->
+        <div id="status-update" class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/crm/repair-status-update</span>
+              <span class="badge-template">Template: repair_status_update</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Notifies the customer whenever the repair changes status (e.g., In Diagnosis, Waiting for Spare Parts, Testing).</p>
+
+            <div class="code-container">
+              <button class="copy-btn" onclick="copySnippet(this)">Copy JSON</button>
+              <pre><code>{
+  "phone": "919342400879",
+  "customerName": "Murali",
+  "jobId": "REP-1024",
+  "device": "Apple iPhone 13",
+  "status": "In Repair (Technician replacing display panel)"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.3 Ready for Pickup -->
+        <div id="ready-pickup" class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/crm/device-ready-pickup</span>
+              <span class="badge-template">Template: repair_ready_pickup</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Alerts the customer that repair and quality testing are completed and the device is ready for store collection with final bill amount.</p>
+
+            <div class="code-container">
+              <button class="copy-btn" onclick="copySnippet(this)">Copy JSON</button>
+              <pre><code>{
+  "phone": "919342400879",
+  "customerName": "Murali",
+  "device": "Apple iPhone 13",
+  "jobId": "REP-1024",
+  "totalAmount": "3500"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.4 Doorstep Pickup -->
+        <div id="doorstep-pickup" class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/crm/doorstep-pickup</span>
+              <span class="badge-template">Template: doorstep_pickup_confirmed</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Confirms an appointment for home or office pickup by a service executive, including date, time slot, and address.</p>
+
+            <div class="code-container">
+              <button class="copy-btn" onclick="copySnippet(this)">Copy JSON</button>
+              <pre><code>{
+  "phone": "919342400879",
+  "customerName": "Murali",
+  "requestId": "PU-502",
+  "device": "OnePlus 11",
+  "slot": "Today, 3:00 PM – 5:00 PM",
+  "address": "No. 12, Main Road, Pondicherry"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.5 Service Quotation -->
+        <div id="service-quote" class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/crm/service-quotation</span>
+              <span class="badge-template">Template: service_quotation_estimate</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Sends diagnostic quotation for customer approval directly on WhatsApp before initiating repair.</p>
+
+            <div class="code-container">
+              <button class="copy-btn" onclick="copySnippet(this)">Copy JSON</button>
+              <pre><code>{
+  "phone": "919342400879",
+  "customerName": "Murali",
+  "device": "Samsung Galaxy S21",
+  "jobId": "REP-1024",
+  "issue": "Display Touch Panel Replacement",
+  "quotedCost": "4500"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4.6 Admin Alert -->
+        <div id="admin-alert" class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/crm/admin-alert</span>
+              <span class="badge-template">Template: admin_service_alert</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Immediately alerts shop managers and technicians on WhatsApp when a high-priority repair is registered.</p>
+
+            <div class="code-container">
+              <button class="copy-btn" onclick="copySnippet(this)">Copy JSON</button>
+              <pre><code>{
+  "phone": "919342400879",
+  "customerName": "Karthik Raja",
+  "customerPhone": "919876543210",
+  "device": "iPhone 14 Pro Max",
+  "service": "Water Damage Recovery",
+  "id": "REP-8492"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Universal Messaging -->
+      <section id="universal-api" class="doc-section">
+        <h2>📨 5. Universal Messaging API</h2>
+        <p>Use these endpoints to dispatch any registered Meta template dynamically or send direct messages within the 24-hour service session.</p>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/messages/send-template</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Triggers any approved Meta template using positional body variables array (<code>{{1}}</code>, <code>{{2}}</code>, etc.):</p>
+            <div class="code-container">
+              <pre><code>{
+  "to": "919342400879",
+  "templateName": "repair_booking_confirmed",
+  "languageCode": "en_US",
+  "bodyVariables": [
+    "Murali",
+    "REP-1024",
+    "Apple iPhone 13",
+    "Screen Replacement",
+    "Same Day"
+  ]
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/messages/send-text</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Sends direct text message to an active customer (must have messaged in the last 24 hours):</p>
+            <div class="code-container">
+              <pre><code>{
+  "to": "919342400879",
+  "text": "Hello Murali, your phone has passed all quality checks. You can visit our store to collect it!"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: Meta Templates API -->
+      <section id="templates-api" class="doc-section">
+        <h2>📱 6. Meta Message Templates Management</h2>
+        <p>Programmatically inspect, create, or delete templates in Meta Business Manager.</p>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-get">GET</span>
+              <span class="endpoint-path">/api/v1/templates</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Returns live list of all templates with real-time approval status (<code>APPROVED</code>, <code>PENDING</code>, <code>REJECTED</code>).</p>
+          </div>
+        </div>
+
+        <div class="endpoint-card">
+          <div class="endpoint-header">
+            <div class="endpoint-left">
+              <span class="badge-method badge-post">POST</span>
+              <span class="endpoint-path">/api/v1/templates</span>
+            </div>
+          </div>
+          <div class="endpoint-body">
+            <p>Submits a new template for automated Meta review:</p>
+            <div class="code-container">
+              <pre><code>{
+  "name": "express_pickup_receipt",
+  "category": "UTILITY",
+  "language": "en_US",
+  "headerText": "Pickup Completed",
+  "bodyText": "Hello {{1}}, our executive {{2}} has received your device {{3}} (Tracking: {{4}}).",
+  "footerText": "iTechnic Mobiles Doorstep Care",
+  "buttons": [
+    { "type": "QUICK_REPLY", "text": "Track Repair" }
+  ],
+  "sampleValues": ["Murali", "Karthik", "iPhone 13", "PU-502"]
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 7: Webhooks -->
+      <section id="webhooks" class="doc-section">
+        <h2>🔄 7. Webhook & Inbound Events</h2>
+        <p>The gateway handles real-time messages, customer button clicks, and damage photos at:</p>
+        <p><code>https://whatapp-automation-kxml.onrender.com/webhook</code></p>
+        
+        <div class="alert alert-info">
+          <div>
+            <strong>Meta Challenge Verification:</strong> GET requests to <code>/webhook</code> verify the <code>hub.verify_token</code> and echo back the <code>hub.challenge</code> parameter automatically.
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 8: Code Samples -->
+      <section id="code-samples" class="doc-section">
+        <h2>💻 8. Multi-Language SDK Snippets</h2>
+
+        <h3>Node.js (Axios)</h3>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet(this)">Copy Node</button>
+          <pre><code>const axios = require('axios');
+
+async function sendBooking() {
+  const res = await axios.post(
+    'https://whatapp-automation-kxml.onrender.com/api/v1/crm/repair-booking-confirmed',
+    {
+      phone: '919342400879',
+      customerName: 'Murali',
+      jobId: 'REP-1024',
+      device: 'Apple iPhone 13',
+      service: 'Screen Replacement',
+      turnaround: 'Same Day'
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': 'itech_live_sec_7f9984e1b9384e9d9a1f'
+      }
+    }
+  );
+  console.log('Result:', res.data);
+}
+
+sendBooking();</code></pre>
+        </div>
+
+        <h3>Python 3 (Requests)</h3>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet(this)">Copy Python</button>
+          <pre><code>import requests
+
+url = "https://whatapp-automation-kxml.onrender.com/api/v1/crm/repair-status-update"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "itech_live_sec_7f9984e1b9384e9d9a1f"
+}
+payload = {
+    "phone": "919342400879",
+    "customerName": "Murali",
+    "jobId": "REP-1024",
+    "device": "Apple iPhone 13",
+    "status": "In Repair (Testing Display Panel)"
+}
+
+response = requests.post(url, json=payload, headers=headers)
+print(response.json())</code></pre>
+        </div>
+
+        <h3>PHP (cURL)</h3>
+        <div class="code-container">
+          <button class="copy-btn" onclick="copySnippet(this)">Copy PHP</button>
+          <pre><code>&lt;?php
+$payload = json_encode([
+    'phone' => '919342400879',
+    'customerName' => 'Murali',
+    'device' => 'Apple iPhone 13',
+    'jobId' => 'REP-1024',
+    'totalAmount' => '3500'
+]);
+
+$ch = curl_init('https://whatapp-automation-kxml.onrender.com/api/v1/crm/device-ready-pickup');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'x-api-key: itech_live_sec_7f9984e1b9384e9d9a1f'
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+?&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 9: Error Codes -->
+      <section id="errors" class="doc-section">
+        <h2>⚠️ 9. HTTP Error Codes & Troubleshooting</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Meaning</th>
+              <th>Troubleshooting Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>400 Bad Request</code></td>
+              <td>Missing parameters</td>
+              <td>Verify required fields (e.g., <code>phone</code>, <code>customerName</code>, <code>jobId</code>).</td>
+            </tr>
+            <tr>
+              <td><code>401 Unauthorized</code></td>
+              <td>Invalid API Key</td>
+              <td>Ensure <code>x-api-key</code> header matches <code>itech_live_sec_7f9984e1b9384e9d9a1f</code>.</td>
+            </tr>
+            <tr>
+              <td><code>404 Not Found</code></td>
+              <td>Resource Not Found</td>
+              <td>Verify URL endpoint path and format.</td>
+            </tr>
+            <tr>
+              <td><code>429 Rate Limit</code></td>
+              <td>Too many requests</td>
+              <td>Implement exponential backoff. Meta limits default to 80 msg/sec.</td>
+            </tr>
+            <tr>
+              <td><code>500 Meta Error</code></td>
+              <td>Meta Graph API failure</td>
+              <td>Check response body for Meta subcode (e.g., template not found or phone number invalid).</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>
+    <p>iTechnic Mobiles WhatsApp Automation Platform · Built for Enterprise Production Reliability</p>
+    <p style="margin-top:0.4rem; opacity:0.7;">Official Support: itechnicmobiles2@gmail.com · +91 9361863063 · Pondicherry, India</p>
+  </footer>
+
+  <script>
+    function copySnippet(btn) {
+      const pre = btn.nextElementSibling;
+      const code = pre.querySelector('code') ? pre.querySelector('code').innerText : pre.innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied! ✓';
+        setTimeout(() => { btn.innerText = originalText; }, 2000);
+      });
+    }
+
+    function downloadMarkdown() {
+      fetch('/PRODUCTION_DEVELOPER_INTEGRATION_GUIDE.md')
+        .then(res => {
+          if (!res.ok) throw new Error('File not found');
+          return res.blob();
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'PRODUCTION_DEVELOPER_INTEGRATION_GUIDE.md';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        })
+        .catch(() => {
+          window.open('/api/v1/docs/download?format=md', '_blank');
+        });
+    }
+  </script>
+</body>
+</html>

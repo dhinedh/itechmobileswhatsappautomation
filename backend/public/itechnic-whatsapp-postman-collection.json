@@ -1,0 +1,347 @@
+{
+  "info": {
+    "_postman_id": "itech-whatsapp-crm-v1",
+    "name": "iTechnic Mobiles WhatsApp Business API - Production Integration",
+    "description": "Production REST API collection for external CRMs, ERPs, and billing systems to trigger WhatsApp notifications, templates, and track repair jobs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://whatapp-automation-kxml.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "itech_live_sec_7f9984e1b9384e9d9a1f",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication & System Info",
+      "item": [
+        {
+          "name": "Get API Auth & Config Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/key",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "key"]
+            }
+          }
+        },
+        {
+          "name": "Get API Documentation JSON",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "docs"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. CRM Automated Workflows",
+      "item": [
+        {
+          "name": "Repair Booking Confirmed",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\",\n  \"jobId\": \"REP-1024\",\n  \"device\": \"Apple iPhone 13\",\n  \"service\": \"Screen Replacement\",\n  \"turnaround\": \"Same Day (60 mins)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/repair-booking-confirmed",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "repair-booking-confirmed"]
+            }
+          }
+        },
+        {
+          "name": "Repair Status Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\",\n  \"jobId\": \"REP-1024\",\n  \"device\": \"Apple iPhone 13\",\n  \"status\": \"In Repair (Technician diagnosing display panel)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/repair-status-update",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "repair-status-update"]
+            }
+          }
+        },
+        {
+          "name": "Device Ready for Pickup",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\",\n  \"device\": \"Apple iPhone 13\",\n  \"jobId\": \"REP-1024\",\n  \"totalAmount\": \"3500\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/device-ready-pickup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "device-ready-pickup"]
+            }
+          }
+        },
+        {
+          "name": "Doorstep Pickup Scheduled",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\",\n  \"requestId\": \"PU-502\",\n  \"device\": \"OnePlus 11\",\n  \"slot\": \"Today, 3:00 PM – 5:00 PM\",\n  \"address\": \"No. 12, Main Road, Pondicherry\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/doorstep-pickup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "doorstep-pickup"]
+            }
+          }
+        },
+        {
+          "name": "Service Quotation Estimate",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\",\n  \"device\": \"Samsung Galaxy S21\",\n  \"jobId\": \"REP-1024\",\n  \"issue\": \"Display Touch Panel Replacement\",\n  \"quotedCost\": \"4500\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/service-quotation",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "service-quotation"]
+            }
+          }
+        },
+        {
+          "name": "Admin Alert Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Karthik Raja\",\n  \"customerPhone\": \"919876543210\",\n  \"device\": \"iPhone 14 Pro Max\",\n  \"service\": \"Water Damage Recovery\",\n  \"id\": \"REP-8492\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/admin-alert",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "admin-alert"]
+            }
+          }
+        },
+        {
+          "name": "Welcome Greeting",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/welcome-greeting",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "welcome-greeting"]
+            }
+          }
+        },
+        {
+          "name": "Customer Feedback & Google Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Murali\",\n  \"device\": \"Apple iPhone 13\",\n  \"jobId\": \"REP-1024\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/feedback-review",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "feedback-review"]
+            }
+          }
+        },
+        {
+          "name": "Promotional Offer Broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"919342400879\",\n  \"customerName\": \"Valued Customer\",\n  \"offerTitle\": \"Weekend Screen Protection Mega Deal\",\n  \"discountPercent\": \"20% OFF\",\n  \"validUntil\": \"Sunday 8:00 PM\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/crm/promotional-broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "crm", "promotional-broadcast"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Universal Messaging API",
+      "item": [
+        {
+          "name": "Send Any Meta Template",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"919342400879\",\n  \"templateName\": \"repair_booking_confirmed\",\n  \"languageCode\": \"en_US\",\n  \"bodyVariables\": [\n    \"Murali\",\n    \"REP-1024\",\n    \"Apple iPhone 13\",\n    \"Screen Replacement\",\n    \"Same Day\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/messages/send-template",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "messages", "send-template"]
+            }
+          }
+        },
+        {
+          "name": "Send Direct Text Message (24h Window)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"919342400879\",\n  \"text\": \"Hello Murali, your phone has passed all quality checks. You can visit our store to collect it!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/messages/send-text",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "messages", "send-text"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Meta Templates Management",
+      "item": [
+        {
+          "name": "List All Templates From Meta",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Create & Submit Template to Meta",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" },
+              { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"doorstep_delivery_out\",\n  \"category\": \"UTILITY\",\n  \"language\": \"en_US\",\n  \"headerText\": \"Out For Delivery\",\n  \"bodyText\": \"Hi {{1}}, your repaired device {{2}} is out for delivery with our executive {{3}}. Track live: {{4}}\",\n  \"footerText\": \"iTechnic Mobiles Care\",\n  \"buttons\": [\n    { \"type\": \"QUICK_REPLY\", \"text\": \"Track Location\" }\n  ],\n  \"sampleValues\": [\"Murali\", \"iPhone 13\", \"Suresh\", \"https://itechnicmobiles.com/track-repair/\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "templates"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Public Website & Tracking",
+      "item": [
+        {
+          "name": "Book Repair (Website Widget)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Murali\",\n  \"phone\": \"9342400879\",\n  \"deviceBrand\": \"Apple\",\n  \"deviceModel\": \"iPhone 13\",\n  \"serviceName\": \"Screen Replacement\",\n  \"issueDescription\": \"Screen flickering and touch unresponsive\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/book-repair",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "book-repair"]
+            }
+          }
+        },
+        {
+          "name": "Track Repair By Job ID or Phone",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/track-repair/REP-1024",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "track-repair", "REP-1024"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

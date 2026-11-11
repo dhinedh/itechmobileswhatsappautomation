@@ -12,40 +12,44 @@ function Header({
 }) {
   const navTabs = [
     { id: 'crm', label: 'CRM & Chats', icon: '💬' },
+    { id: 'leads', label: 'Sales Leads', icon: '🎯' },
+    { id: 'orders', label: 'Orders & Tracking', icon: '📦' },
+    { id: 'catalog', label: 'Catalog & Offers', icon: '🏷️' },
+    { id: 'agents', label: 'Support Roster', icon: '👨‍💼' },
     { id: 'templates', label: 'Meta Templates', icon: '📱' },
     { id: 'creator', label: 'Create Template', icon: '✨' },
-    { id: 'apidocs', label: 'API & Developer Hub', icon: '⚡' }
+    { id: 'apidocs', label: 'API Hub', icon: '⚡' }
   ];
 
   return (
-    <header className="bg-wa-teal text-white py-2.5 px-5 flex flex-wrap justify-between items-center shadow-md gap-3 border-b border-white/10">
+    <header className="bg-wa-teal text-white py-2 px-5 flex flex-wrap justify-between items-center shadow-md gap-3 border-b border-white/10">
       {/* Brand & Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 shrink-0">
         <img 
           src={logoImg} 
           alt="iTechnic Mobiles Logo" 
           className="w-10 h-10 rounded-full bg-white object-contain p-0.5 border-2 border-white/30 shadow-md"
         />
         <div>
-          <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-base font-bold tracking-tight flex items-center gap-2">
             iTechnic Mobiles
             <span className="text-[10px] font-semibold bg-emerald-500/30 text-emerald-200 px-2 py-0.5 rounded-full border border-emerald-400/40">
-              API & CRM Platform
+              Retail Platform
             </span>
           </h1>
-          <p className="text-[11px] opacity-85">{contactCount} customer contacts · WhatsApp Business API</p>
+          <p className="text-[10px] opacity-85">{contactCount} customer contacts · WhatsApp Business Bot</p>
         </div>
       </div>
 
       {/* Navigation Pills */}
-      <nav className="flex items-center gap-1.5 bg-black/20 p-1 rounded-xl border border-white/10">
+      <nav className="flex items-center gap-1 bg-black/25 p-1 rounded-xl border border-white/10 overflow-x-auto max-w-full scrollbar-none">
         {navTabs.map(tab => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
                 isActive
                   ? 'bg-white text-wa-teal shadow-md font-bold scale-[1.02]'
                   : 'text-white/80 hover:text-white hover:bg-white/10'
