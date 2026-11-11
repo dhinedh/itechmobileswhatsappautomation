@@ -14,14 +14,18 @@ import CustomerSidebar from './components/CustomerSidebar';
 import { isToday } from './utils/formatters';
 
 function App() {
-  // Dynamically resolve API URL: if on Vercel/production but envUrl is localhost, use production backend
+  // Dynamically resolve API URL:
+  // On Vercel / production web domains, use relative '' so Vercel rewrites proxy all requests (same-origin, zero CORS blocks).
+  // In local dev, use envUrl or '' which Vite dev server proxies to http://localhost:3000.
   const API_URL = useMemo(() => {
     const envUrl = import.meta.env.VITE_API_URL;
     if (typeof window !== 'undefined') {
       const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (!isLocalhost && (!envUrl || envUrl.includes('localhost:3000'))) {
-        return 'https://whatapp-automation-kxml.onrender.com';
+      if (isLocalhost) {
+        return envUrl || '';
       }
+      // On Vercel or any remote production domain, use relative paths so vercel.json rewrites handle proxying
+      return '';
     }
     return envUrl || '';
   }, []);
@@ -52,7 +56,16 @@ function App() {
   // Fetch all contacts
   const fetchContacts = async () => {
     try {
-      const res = await fetch(`${API_URL}/crm`);
+      let res;
+      try {
+        res = await fetch(`${API_URL}/crm`);
+      } catch (err) {
+        if (!API_URL && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+          res = await fetch('https://whatapp-automation-kxml.onrender.com/crm');
+        } else {
+          throw err;
+        }
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to fetch CRM data`);
       const data = await res.json();
       
@@ -63,7 +76,7 @@ function App() {
       console.error("Error fetching contacts:", error);
       const isConnRefused = error.message?.includes('Failed to fetch') || error.name === 'TypeError';
       if (isConnRefused) {
-        const targetHost = API_URL || 'backend server';
+        const targetHost = API_URL || window.location.origin;
         setConnectionError(`Could not connect to ${targetHost}. Please ensure the backend is running.`);
       }
     }
@@ -72,8 +85,17 @@ function App() {
   // Fetch analytics
   const fetchAnalytics = async () => {
     try {
-      const res = await fetch(`${API_URL}/crm/analytics`);
-      if (res.ok) {
+      let res;
+      try {
+        res = await fetch(`${API_URL}/crm/analytics`);
+      } catch (err) {
+        if (!API_URL && typeof window !== 'undefined' && !window.location.hostname.includes('localhost')) {
+          res = await fetch('https://whatapp-automation-kxml.onrender.com/crm/analytics');
+        } else {
+          throw err;
+        }
+      }
+      if (res && res.ok) {
         const data = await res.json();
         setAnalytics(data);
         setConnectionError(null);

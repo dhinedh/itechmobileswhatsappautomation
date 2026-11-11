@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/crm",
+      "destination": "https://whatapp-automation-kxml.onrender.com/crm"
+    },
+    {
+      "source": "/crm/:match*",
+      "destination": "https://whatapp-automation-kxml.onrender.com/crm/:match*"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "https://whatapp-automation-kxml.onrender.com/api/:match*"
+    },
+    {
+      "source": "/webhook",
+      "destination": "https://whatapp-automation-kxml.onrender.com/webhook"
+    },
+    {
+      "source": "/webhook/:match*",
+      "destination": "https://whatapp-automation-kxml.onrender.com/webhook/:match*"
+    },
+    {
+      "source": "/media/:match*",
+      "destination": "https://whatapp-automation-kxml.onrender.com/media/:match*"
+    },
+    {
+      "source": "/((?!.*\\.[\\w]+$|_next|assets).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

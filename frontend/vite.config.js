@@ -7,7 +7,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/crm': 'http://localhost:3000',
-      '/webhook': 'http://localhost:3000'
+      '/webhook': 'http://localhost:3000',
+      '/api': 'http://localhost:3000'
     }
   }
 })
