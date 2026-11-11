@@ -11,6 +11,7 @@ const { SMARTPHONES, ACCESSORIES, OFFERS, AGENTS, SAMPLE_ORDERS, SAMPLE_LEADS } 
 const leadService = require('./services/leadService');
 const whatsappClient = require('./services/whatsappClient');
 const orderService = require('./services/orderService');
+const { handleAiSensyCampaign } = require('./aisensy_campaign_handler');
 
 // In-memory working sets for offline/resilient mode
 let memoryProducts = [...SMARTPHONES, ...ACCESSORIES];
@@ -59,6 +60,9 @@ router.get('/auth/key', (req, res) => {
     baseUrl: `${req.protocol}://${req.get('host')}/api/v1`
   });
 });
+
+// AiSensy Universal API Campaign Format Endpoint
+router.post('/campaign/t1/api/v2', handleAiSensyCampaign);
 
 // ----------------------------------------------------
 // 2. TEMPLATES API (Fetch from Meta & Submit to Meta)

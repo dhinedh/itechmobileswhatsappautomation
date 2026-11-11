@@ -10,6 +10,10 @@
       "destination": "https://whatapp-automation-kxml.onrender.com/crm/:match*"
     },
     {
+      "source": "/campaign/:match*",
+      "destination": "https://whatapp-automation-kxml.onrender.com/campaign/:match*"
+    },
+    {
       "source": "/api/:match*",
       "destination": "https://whatapp-automation-kxml.onrender.com/api/:match*"
     },

@@ -8,7 +8,8 @@ export default defineConfig({
     proxy: {
       '/crm': 'http://localhost:3000',
       '/webhook': 'http://localhost:3000',
-      '/api': 'http://localhost:3000'
+      '/api': 'http://localhost:3000',
+      '/campaign': 'http://localhost:3000'
     }
   }
 })

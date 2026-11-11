@@ -43,6 +43,12 @@ app.use('/media', express.static('public'));
 const apiServiceRoutes = require('./api_service_routes');
 const templateService = require('./template_service');
 const flowEngine = require('./flows/flowEngine');
+const { handleAiSensyCampaign } = require('./aisensy_campaign_handler');
+
+// AiSensy Universal API Campaign Format Compatibility Layer
+app.post('/campaign/t1/api/v2', handleAiSensyCampaign);
+app.post('/api/v1/campaign/t1/api/v2', handleAiSensyCampaign);
+
 app.use('/api/v1', apiServiceRoutes);
 
 const PORT = process.env.PORT || 3000;

@@ -9,8 +9,9 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
  * @param {string} to - Recipient phone number with country code (e.g. '919342400879')
  * @param {string} templateName - Name of the approved template
  * @param {Array<string>} bodyVariables - Array of strings replacing {{1}}, {{2}}, etc.
+ * @param {object} media - Optional media header ({ url, filename })
  */
-async function sendTemplateMessage(to, templateName, bodyVariables = []) {
+async function sendTemplateMessage(to, templateName, bodyVariables = [], media = null) {
   try {
     const payload = {
       messaging_product: 'whatsapp',
@@ -22,13 +23,34 @@ async function sendTemplateMessage(to, templateName, bodyVariables = []) {
       }
     };
 
-    if (bodyVariables.length > 0) {
-      payload.template.components = [
-        {
-          type: 'body',
-          parameters: bodyVariables.map(v => ({ type: 'text', text: String(v) }))
-        }
-      ];
+    const components = [];
+
+    // Optional media header (PDF Document, Image, etc.)
+    if (media && media.url) {
+      const isPdf = media.url.toLowerCase().endsWith('.pdf') || (media.filename && media.filename.toLowerCase().endsWith('.pdf'));
+      components.push({
+        type: 'header',
+        parameters: [
+          {
+            type: isPdf ? 'document' : 'image',
+            [isPdf ? 'document' : 'image']: {
+              link: media.url,
+              ...(media.filename ? { filename: media.filename } : {})
+            }
+          }
+        ]
+      });
+    }
+
+    if (bodyVariables && bodyVariables.length > 0) {
+      components.push({
+        type: 'body',
+        parameters: bodyVariables.map(v => ({ type: 'text', text: String(v) }))
+      });
+    }
+
+    if (components.length > 0) {
+      payload.template.components = components;
     }
 
     const res = await axios.post(

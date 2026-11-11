@@ -1,12 +1,103 @@
 import React, { useState } from 'react';
 
 const API_CATEGORIES = [
+  { id: 'aisensy', name: 'AiSensy Format Campaign API (Universal)', icon: '⚡' },
   { id: 'crm', name: 'CRM Automation Workflows', icon: '🏢' },
   { id: 'messages', name: 'Universal Messaging API', icon: '📨' },
   { id: 'templates', name: 'Meta Templates API', icon: '📱' }
 ];
 
 const ENDPOINTS = [
+  // 0. AiSensy Universal API Campaigns
+  {
+    id: 'aisensy-repair-booking',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Repair Booking Confirmation',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Standard AiSensy API format for dispatching repair booking confirmations from CRM/ERP.',
+    templateName: 'repair_booking_confirmed',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'repair_booking_confirmation' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number (e.g. +919876543210)' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name (e.g. Ramesh Babu)' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[JobId, Device, Service, Turnaround]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'repair_booking_confirmation',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'REP-1042',
+        'Apple iPhone 13',
+        'Screen Replacement',
+        'Same Day'
+      ]
+    }
+  },
+  {
+    id: 'aisensy-device-ready',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Device Ready for Pickup',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Standard AiSensy API format for notifying customer that device is repaired and bill is ready.',
+    templateName: 'device_ready_pickup',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'device_ready_pickup' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[JobId, Device, FinalAmount, InvoiceNumber]' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'device_ready_pickup',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'REP-1042',
+        'Apple iPhone 13',
+        '4500',
+        'INV-2026-908'
+      ]
+    }
+  },
+  {
+    id: 'aisensy-order-dispatched',
+    category: 'aisensy',
+    title: 'AiSensy Campaign: Order Dispatched with Invoice',
+    method: 'POST',
+    path: '/campaign/t1/api/v2',
+    description: 'Standard AiSensy format for retail order dispatch with courier tracking and optional PDF attachment.',
+    templateName: 'order_dispatched',
+    params: [
+      { name: 'apiKey', type: 'string', required: true, desc: 'Your live API key in JSON body' },
+      { name: 'campaignName', type: 'string', required: true, desc: 'order_dispatched' },
+      { name: 'destination', type: 'string', required: true, desc: 'Customer WhatsApp number' },
+      { name: 'userName', type: 'string', required: true, desc: 'Customer full name' },
+      { name: 'templateParams', type: 'array of strings', required: true, desc: '[OrderId, DeviceModel, Status, TrackingNumber]' },
+      { name: 'media', type: 'object', required: false, desc: '{ url: "https://...", filename: "invoice.pdf" }' }
+    ],
+    samplePayload: {
+      apiKey: 'itech_live_sec_7f9984e1b9384e9d9a1f',
+      campaignName: 'order_dispatched',
+      destination: '+919876543210',
+      userName: 'Ramesh Babu',
+      templateParams: [
+        'ORD-1001',
+        'Apple iPhone 15 Pro',
+        'Dispatched via Express Rider',
+        'TRACK-12345'
+      ],
+      media: {
+        url: 'https://whatapp-automation-kxml.onrender.com/invoice.pdf',
+        filename: 'invoice.pdf'
+      }
+    }
+  },
   // 1. CRM Workflows
   {
     id: 'crm-repair-booking',
@@ -232,7 +323,7 @@ const ENDPOINTS = [
 ];
 
 function ApiDocsHub({ apiUrl }) {
-  const [activeCategory, setActiveCategory] = useState('crm');
+  const [activeCategory, setActiveCategory] = useState('aisensy');
   const [selectedEndpoint, setSelectedEndpoint] = useState(ENDPOINTS[0]);
   const [codeLanguage, setCodeLanguage] = useState('curl');
   const [apiKey, setApiKey] = useState('itech_live_sec_7f9984e1b9384e9d9a1f');
